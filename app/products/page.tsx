@@ -1,0 +1,162 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { supabase } from "@/Lib/supabase";
+
+type Company = { id: string; name: string; logo_url: string | null };
+type Plan = {
+  id: string;
+  plan_name: string;
+  insurance_type: string;
+  premium_amount: number | null;
+  price_period: string | null;
+  coverage_summary: string | null;
+  price_source_url: string | null;
+  price_verified_at: string | null;
+  price_valid_until: string | null;
+  promotion_name: string | null;
+  promotion_description: string | null;
+  discount_type: "percent" | "fixed" | null;
+  discount_value: number | null;
+  promotion_start_date: string | null;
+  promotion_end_date: string | null;
+  insurance_companies: Company | null;
+};
+
+const formatMoney = (amount: number) =>
+  new Intl.NumberFormat("th-TH", { maximumFractionDigits: 2 }).format(amount);
+
+const bangkokToday = () => {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Bangkok",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+  const part = (type: string) => parts.find((p) => p.type === type)?.value ?? "";
+  return `${part("year")}-${part("month")}-${part("day")}`;
+};
+
+export default function ProductsPage() {
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    let active = true;
+    async function loadPlans() {
+      const { data, error } = await supabase
+        .from("insurance_plans")
+        .select(`
+          id, plan_name, insurance_type, premium_amount, price_period,
+          coverage_summary, price_source_url, price_verified_at, price_valid_until,
+          promotion_name, promotion_description, discount_type, discount_value,
+          promotion_start_date, promotion_end_date,
+          insurance_companies (id, name, logo_url)
+        `)
+        .eq("is_published", true)
+        .order("created_at", { ascending: false });
+      if (!active) return;
+      if (error) setErrorMessage(error.message);
+      else setPlans((data ?? []) as unknown as Plan[]);
+      setLoading(false);
+    }
+    void loadPlans();
+    return () => { active = false; };
+  }, []);
+
+  const today = bangkokToday();
+  const cardStyle: React.CSSProperties = {
+    background: "#fff", border: "1px solid #e2e8f0", borderRadius: 18,
+    padding: 24, boxShadow: "0 5px 20px rgba(0,0,0,0.04)",
+  };
+
+  if (loading) return <main style={{ padding: 40 }}>กำลังโหลดแผนประกัน...</main>;
+
+  return (
+    <main style={{ minHeight: "100vh", background: "#f3f7fc", padding: "32px 18px", color: "#102b50" }}>
+      <div style={{ maxWidth: 1150, margin: "0 auto" }}>
+        <Link href="/" style={{ color: "#1764b3", textDecoration: "none", fontWeight: 600 }}>← กลับหน้าหลัก</Link>
+        <header style={{ margin: "28px 0" }}>
+          <h1 style={{ fontSize: 32, marginBottom: 8 }}>INSURE ONE</h1>
+          <h2 style={{ fontSize: 24, margin: 0 }}>แผนประกันภัยและโปรโมชั่น</h2>
+          <p style={{ color: "#64748b", lineHeight: 1.8 }}>
+            เปรียบเทียบข้อมูลเบื้องต้นและส่งคำขอใบเสนอราคาเพื่อรับข้อเสนอที่เหมาะกับคุณ
+          </p>
+        </header>
+        {errorMessage && <div role="alert" style={{ background: "#fff1f2", border: "1px solid #fecdd3", padding: 16, borderRadius: 12, marginBottom: 20 }}>โหลดแผนประกันไม่สำเร็จ: {errorMessage}</div>}
+        {!errorMessage && plans.length === 0 && <p>ยังไม่มีแผนประกันที่เผยแพร่ในระบบ</p>}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20 }}>
+          {plans.map((plan) => {
+            const company = plan.insurance_companies;
+            const validPrice =
+              typeof plan.premium_amount === "number" && Number.isFinite(plan.premium_amount) &&
+              plan.premium_amount > 0 && !!plan.price_period && !!plan.price_source_url &&
+              !!plan.price_verified_at && !!plan.price_valid_until && plan.price_valid_until >= today;
+            const basePrice = validPrice ? plan.premium_amount! : null;
+            const promotionActive =
+              basePrice !== null && !!plan.promotion_name?.trim() &&
+              (plan.discount_type === "percent" || plan.discount_type === "fixed") &&
+              typeof plan.discount_value === "number" && Number.isFinite(plan.discount_value) &&
+              plan.discount_value > 0 &&
+              (plan.discount_type !== "percent" || plan.discount_value <= 100) &&
+              !!plan.promotion_start_date && !!plan.promotion_end_date &&
+              plan.promotion_start_date <= today && plan.promotion_end_date >= today &&
+              plan.promotion_start_date <= plan.promotion_end_date;
+            const discount = promotionActive && basePrice !== null
+              ? Math.min(basePrice, plan.discount_type === "percent"
+                  ? basePrice * plan.discount_value! / 100 : plan.discount_value!)
+              : 0;
+            const finalPrice = basePrice === null ? null : Math.max(0, basePrice - discount);
+            const params = new URLSearchParams({ company: company?.name ?? "", plan: plan.plan_name });
+            return (
+              <article key={plan.id} style={cardStyle}>
+                <div style={{ height: 90, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16, background: "#f8fafc", borderRadius: 12 }}>
+                  {company?.logo_url ? (
+                    <img src={company.logo_url} alt={`โลโก้ ${company.name}`} style={{ maxWidth: "85%", maxHeight: 70, objectFit: "contain" }} />
+                  ) : <span style={{ fontSize: 34 }}>🛡️</span>}
+                </div>
+                <h3 style={{ fontSize: 19, marginBottom: 8 }}>{company?.name ?? "บริษัทประกันภัย"}</h3>
+                <p style={{ fontWeight: 600, marginBottom: 8 }}>{plan.plan_name}</p>
+                <p style={{ fontSize: 14, color: "#64748b" }}>ประเภท: {plan.insurance_type}</p>
+                {plan.coverage_summary && <p style={{ fontSize: 14, lineHeight: 1.7 }}>{plan.coverage_summary}</p>}
+                <div style={{ background: "#eff6ff", borderRadius: 12, padding: 16, margin: "18px 0" }}>
+                  {basePrice !== null && finalPrice !== null ? (
+                    <>
+                      {promotionActive && (
+                        <div style={{ marginBottom: 12, background: "#ecfdf5", padding: 12, borderRadius: 10, color: "#166534" }}>
+                          <strong>🎁 {plan.promotion_name}</strong>
+                          {plan.promotion_description && <p style={{ fontSize: 13, margin: "6px 0" }}>{plan.promotion_description}</p>}
+                          <div style={{ fontSize: 13 }}>
+                            ส่วนลด {plan.discount_type === "percent" ? `${formatMoney(plan.discount_value!)}%` : `฿${formatMoney(plan.discount_value!)}`}
+                          </div>
+                          <div style={{ fontSize: 12, marginTop: 5 }}>โปรโมชั่นถึงวันที่ {plan.promotion_end_date}</div>
+                        </div>
+                      )}
+                      {promotionActive && <div style={{ color: "#64748b", textDecoration: "line-through", fontSize: 15 }}>฿{formatMoney(basePrice)}</div>}
+                      <div style={{ fontSize: 27, fontWeight: 700, color: "#1556a2" }}>฿{formatMoney(finalPrice)}</div>
+                      <div style={{ fontSize: 13 }}>{plan.price_period} {promotionActive ? "· ราคาประมาณการหลังส่วนลด" : "· ราคาอ้างอิง"}</div>
+                      <div style={{ marginTop: 8, fontSize: 12, color: "#64748b" }}>ราคาอ้างอิงถึงวันที่ {plan.price_valid_until}</div>
+                      <a href={plan.price_source_url!} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", marginTop: 8, fontSize: 12, color: "#1764b3" }}>ดูแหล่งอ้างอิงราคา</a>
+                    </>
+                  ) : (
+                    <>
+                      <div style={{ fontSize: 23, fontWeight: 700, color: "#1556a2" }}>สอบถามราคา</div>
+                      <div style={{ fontSize: 13, color: "#64748b", marginTop: 6 }}>เบี้ยประกันขึ้นอยู่กับข้อมูลและเงื่อนไขของผู้ขอเอาประกัน</div>
+                    </>
+                  )}
+                </div>
+                <Link href={`/quote?${params.toString()}`} style={{ display: "block", textAlign: "center", background: "#1764b3", color: "white", padding: "13px 16px", borderRadius: 10, textDecoration: "none", fontWeight: 600 }}>ขอใบเสนอราคา</Link>
+              </article>
+            );
+          })}
+        </div>
+        <p style={{ marginTop: 28, color: "#64748b", fontSize: 13, lineHeight: 1.8 }}>
+          หมายเหตุ: ราคาและโปรโมชั่นที่แสดงเป็นข้อมูลอ้างอิง ไม่ใช่ข้อเสนอรับประกันภัยที่มีผลผูกพัน
+          ยอดที่ต้องชำระจริงต้องได้รับการยืนยันจากบริษัทประกันหรือช่องทางที่ได้รับอนุญาตก่อนเสมอ
+        </p>
+      </div>
+    </main>
+  );
+}
