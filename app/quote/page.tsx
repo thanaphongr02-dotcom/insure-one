@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { Suspense, useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/Lib/supabase";
@@ -11,7 +11,7 @@ const insuranceTypes = [
   "ประกันธุรกิจ", "อื่น ๆ",
 ];
 
-export default function QuoteRequestPage() {
+function QuoteRequestForm() {
   const router = useRouter();
   const params = useSearchParams();
   const [ready, setReady] = useState(false);
@@ -114,3 +114,4 @@ export default function QuoteRequestPage() {
     </div>
   </main>;
 }
+\nexport default function QuoteRequestPage() {\n  return <Suspense fallback={<main style={{ padding: 32 }}>กำลังโหลดแบบฟอร์ม...</main>}><QuoteRequestForm /></Suspense>;\n}\n
