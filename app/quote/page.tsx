@@ -1,389 +1,116 @@
-
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/Lib/supabase";
 
-type QuoteRequest = {
-  id: string;
-  contact_name: string | null;
-  contact_info: string | null;
-  insurance_type: string;
-  details: string | null;
-  status: string;
-  created_at: string;
-};
+const insuranceTypes = [
+  "ประกันชีวิต", "ประกันรถยนต์", "ประกันสุขภาพ", "ประกันอุบัติเหตุ",
+  "ประกันบ้านและทรัพย์สิน", "ประกันเดินทาง", "ประกันการเกษตร",
+  "ประกันธุรกิจ", "อื่น ๆ",
+];
 
-type StatusHistory = {
-  id: string;
-  old_status: string | null;
-  new_status: string;
-  changed_at: string;
-};
-
-const statusLabels: Record<string, string> = {
-  pending: "รอตรวจสอบ",
-  reviewing: "กำลังตรวจสอบ",
-  completed: "ดำเนินการเสร็จสิ้น",
-  cancelled: "ยกเลิกคำขอ",
-};
-
-function getStatusLabel(status: string) {
-  return statusLabels[status] ?? status;
-}
-
-function formatDate(value: string) {
-  return new Date(value).toLocaleString("th-TH", {
-    dateStyle: "medium",
-    timeStyle: "short",
-    timeZone: "Asia/Bangkok",
-  });
-}
-
-export default function QuoteDetailsPage() {
-  const params = useParams();
+export default function QuoteRequestPage() {
   const router = useRouter();
+  const params = useSearchParams();
+  const [ready, setReady] = useState(false);
+  const [userId, setUserId] = useState("");
+  const [name, setName] = useState("");
+  const [contact, setContact] = useState("");
+  const [type, setType] = useState(insuranceTypes[0]);
+  const [details, setDetails] = useState("");
+  const [acknowledged, setAcknowledged] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
 
-  const quoteId = params?.id as string;
-
-  const [quote, setQuote] = useState<QuoteRequest | null>(null);
-  const [history, setHistory] = useState<StatusHistory[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [historyError, setHistoryError] = useState("");
+  const company = params.get("company")?.slice(0, 120) ?? "";
+  const plan = params.get("plan")?.slice(0, 120) ?? "";
 
   useEffect(() => {
     let active = true;
-
-    async function loadQuote() {
+    async function load() {
       try {
-        const { data: auth, error: authError } =
-          await supabase.auth.getUser();
-
+        const { data, error } = await supabase.auth.getUser();
         if (!active) return;
-
-        if (authError || !auth.user) {
-          router.replace("/login");
-          return;
-        }
-
-        const { data: quoteData, error: quoteError } =
-          await supabase
-            .from("quote_requests")
-            .select(
-              "id, contact_name, contact_info, insurance_type, details, status, created_at"
-            )
-            .eq("id", quoteId)
-            .eq("user_id", auth.user.id)
-            .maybeSingle();
-
-        if (!active) return;
-
-        if (quoteError) {
-          setErrorMessage(
-            "โหลดข้อมูลคำขอไม่สำเร็จ: " + quoteError.message
-          );
-          return;
-        }
-
-        if (!quoteData) {
-          setErrorMessage(
-            "ไม่พบคำขอนี้ หรือคุณไม่มีสิทธิ์เข้าถึง"
-          );
-          return;
-        }
-
-        setQuote(quoteData as QuoteRequest);
-
-        const { data: historyData, error: historyQueryError } =
-          await supabase
-            .from("quote_status_history")
-            .select("id, old_status, new_status, changed_at")
-            .eq("quote_id", quoteId)
-            .order("changed_at", { ascending: true });
-
-        if (!active) return;
-
-        if (historyQueryError) {
-          setHistoryError(
-            "ไม่สามารถโหลดประวัติสถานะได้: " +
-              historyQueryError.message
-          );
-        } else {
-          setHistory((historyData ?? []) as StatusHistory[]);
-        }
+        if (error || !data.user) { router.replace("/login"); return; }
+        setUserId(data.user.id);
+        setName(typeof data.user.user_metadata?.full_name === "string" ? data.user.user_metadata.full_name : "");
+        setContact(typeof data.user.user_metadata?.phone === "string" ? data.user.user_metadata.phone : "");
       } catch {
-        if (active) {
-          setErrorMessage(
-            "เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่"
-          );
-        }
+        if (active) setError("ไม่สามารถตรวจสอบบัญชีได้ กรุณาลองใหม่");
       } finally {
-        if (active) setLoading(false);
+        if (active) setReady(true);
       }
     }
+    void load();
+    return () => { active = false; };
+  }, [router]);
 
-    if (quoteId) {
-      void loadQuote();
-    } else {
-      setErrorMessage("ไม่พบรหัสคำขอ");
-      setLoading(false);
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (submitting || !userId) return;
+    setError("");
+    if (!name.trim() || !contact.trim() || !type || !acknowledged) {
+      setError("กรุณากรอกข้อมูลและรับทราบการใช้ข้อมูลส่วนบุคคล");
+      return;
     }
-
-    return () => {
-      active = false;
-    };
-  }, [quoteId, router]);
-
-  const cardStyle: React.CSSProperties = {
-    background: "#ffffff",
-    border: "1px solid #dbe6f3",
-    borderRadius: 16,
-    padding: 24,
-    marginBottom: 20,
-  };
-
-  if (loading) {
-    return (
-      <main style={{ padding: 40 }}>
-        กำลังโหลดรายละเอียดคำขอ...
-      </main>
-    );
+    if (name.trim().length > 150 || contact.trim().length > 200 || details.length > 1800) {
+      setError("ข้อมูลยาวเกินกว่าที่ระบบรองรับ");
+      return;
+    }
+    setSubmitting(true);
+    const selectedPlan = [company && `บริษัท: ${company}`, plan && `แผน: ${plan}`].filter(Boolean).join("\n");
+    const combinedDetails = [selectedPlan, details.trim()].filter(Boolean).join("\n\n");
+    try {
+      const { error: insertError } = await supabase.from("quote_requests").insert({
+        user_id: userId,
+        contact_name: name.trim(),
+        contact_info: contact.trim(),
+        insurance_type: type,
+        details: combinedDetails.slice(0, 2000),
+      });
+      if (insertError) {
+        setError("ไม่สามารถส่งคำขอได้ กรุณาลองใหม่หรือติดต่อเจ้าหน้าที่");
+        return;
+      }
+      setSuccess(true);
+    } catch {
+      setError("การเชื่อมต่อขัดข้อง กรุณาลองใหม่");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
-  return (
-    <main
-      style={{
-        minHeight: "100vh",
-        background: "#f3f7fc",
-        padding: "32px 18px",
-        color: "#142c48",
-      }}
-    >
-      <div style={{ maxWidth: 900, margin: "0 auto" }}>
-        <Link
-          href="/member"
-          style={{
-            color: "#1764b3",
-            textDecoration: "none",
-            fontWeight: 600,
-          }}
-        >
-          ← กลับหน้า Member Dashboard
-        </Link>
-
-        <header style={{ margin: "28px 0" }}>
-          <div
-            style={{
-              color: "#1764b3",
-              fontSize: 13,
-              fontWeight: 700,
-              letterSpacing: 1,
-            }}
-          >
-            INSURE ONE · QUOTE TRACKING
-          </div>
-
-          <h1 style={{ fontSize: 30, marginBottom: 8 }}>
-            ติดตามสถานะใบเสนอราคา
-          </h1>
-
-          <p style={{ color: "#64748b" }}>
-            ตรวจสอบรายละเอียดและความคืบหน้าคำขอของคุณ
-          </p>
-        </header>
-
-        {errorMessage ? (
-          <section style={cardStyle}>
-            <p role="alert" style={{ color: "#b91c1c" }}>
-              {errorMessage}
-            </p>
-          </section>
-        ) : quote ? (
-          <>
-            <section style={cardStyle}>
-              <h2 style={{ marginTop: 0 }}>
-                รายละเอียดคำขอ
-              </h2>
-
-              <div
-                style={{
-                  display: "grid",
-                  gap: 16,
-                  lineHeight: 1.7,
-                }}
-              >
-                <div>
-                  <strong>ประเภทประกัน</strong>
-                  <div>{quote.insurance_type}</div>
-                </div>
-
-                <div>
-                  <strong>ชื่อผู้ติดต่อ</strong>
-                  <div>{quote.contact_name || "ไม่ระบุ"}</div>
-                </div>
-
-                <div>
-                  <strong>ข้อมูลติดต่อ</strong>
-                  <div>{quote.contact_info || "ไม่ระบุ"}</div>
-                </div>
-
-                <div>
-                  <strong>วันที่ส่งคำขอ</strong>
-                  <div>{formatDate(quote.created_at)}</div>
-                </div>
-
-                <div>
-                  <strong>สถานะปัจจุบัน</strong>
-                  <div
-                    style={{
-                      display: "inline-block",
-                      marginTop: 6,
-                      padding: "8px 14px",
-                      borderRadius: 999,
-                      background: "#e8f2ff",
-                      color: "#1764b3",
-                      fontWeight: 700,
-                    }}
-                  >
-                    {getStatusLabel(quote.status)}
-                  </div>
-                </div>
-
-                {quote.details && (
-                  <div>
-                    <strong>รายละเอียดเพิ่มเติม</strong>
-                    <p
-                      style={{
-                        whiteSpace: "pre-wrap",
-                        overflowWrap: "anywhere",
-                        color: "#475569",
-                        marginBottom: 0,
-                      }}
-                    >
-                      {quote.details}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </section>
-
-            <section style={cardStyle}>
-              <h2 style={{ marginTop: 0 }}>
-                ประวัติการติดตามสถานะ
-              </h2>
-
-              <p style={{ color: "#64748b" }}>
-                ระบบจะแสดงประวัติเมื่อเจ้าหน้าที่เปลี่ยนสถานะคำขอ
-              </p>
-
-              <div
-                style={{
-                  borderLeft: "3px solid #c6dbf5",
-                  marginLeft: 10,
-                  paddingLeft: 24,
-                }}
-              >
-                <div
-                  style={{
-                    position: "relative",
-                    paddingBottom: 24,
-                  }}
-                >
-                  <span
-                    style={{
-                      position: "absolute",
-                      left: -33,
-                      top: 3,
-                      width: 15,
-                      height: 15,
-                      borderRadius: "50%",
-                      background: "#1764b3",
-                      border: "3px solid #ffffff",
-                    }}
-                  />
-
-                  <strong>ส่งคำขอใบเสนอราคา</strong>
-
-                  <div
-                    style={{
-                      color: "#64748b",
-                      fontSize: 13,
-                      marginTop: 5,
-                    }}
-                  >
-                    {formatDate(quote.created_at)}
-                  </div>
-                </div>
-
-                {history.map((item) => (
-                  <div
-                    key={item.id}
-                    style={{
-                      position: "relative",
-                      paddingBottom: 24,
-                    }}
-                  >
-                    <span
-                      style={{
-                        position: "absolute",
-                        left: -33,
-                        top: 3,
-                        width: 15,
-                        height: 15,
-                        borderRadius: "50%",
-                        background: "#1764b3",
-                        border: "3px solid #ffffff",
-                      }}
-                    />
-
-                    <strong>
-                      เปลี่ยนสถานะเป็น{" "}
-                      {getStatusLabel(item.new_status)}
-                    </strong>
-
-                    {item.old_status && (
-                      <div
-                        style={{
-                          color: "#64748b",
-                          fontSize: 13,
-                          marginTop: 5,
-                        }}
-                      >
-                        จาก {getStatusLabel(item.old_status)}
-                      </div>
-                    )}
-
-                    <div
-                      style={{
-                        color: "#64748b",
-                        fontSize: 13,
-                        marginTop: 5,
-                      }}
-                    >
-                      {formatDate(item.changed_at)}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {historyError ? (
-                <p role="alert" style={{ color: "#b91c1c" }}>
-                  {historyError}
-                </p>
-              ) : history.length === 0 ? (
-                <p style={{ color: "#64748b" }}>
-                  ยังไม่มีประวัติการเปลี่ยนสถานะที่บันทึกไว้
-                  ประวัติจะเริ่มแสดงเมื่อมีการเปลี่ยนสถานะ
-                  หลังเปิดใช้งานระบบบันทึกประวัติ
-                </p>
-              ) : null}
-            </section>
-          </>
-        ) : null}
-      </div>
-    </main>
-  );
+  const field = { display: "block" as const, width: "100%", padding: 12, marginTop: 6, border: "1px solid #b8c8da", borderRadius: 8, boxSizing: "border-box" as const };
+  return <main style={{ minHeight: "100vh", background: "#f3f7fc", padding: "32px 16px", color: "#17324d" }}>
+    <div style={{ maxWidth: 660, margin: "0 auto", background: "white", padding: 28, borderRadius: 16 }}>
+      <Link href="/member">← กลับหน้าสมาชิก</Link>
+      <h1>ขอใบเสนอราคาประกันภัย</h1>
+      <p>ส่งความต้องการให้เจ้าหน้าที่ติดต่อกลับ การส่งคำขอไม่ใช่การซื้อหรือเริ่มความคุ้มครอง</p>
+      {!ready ? <p role="status">กำลังตรวจสอบบัญชี...</p> : !userId ? <p><Link href="/login">เข้าสู่ระบบเพื่อส่งคำขอ</Link></p> : success ?
+        <section role="status"><h2>ส่งคำขอเรียบร้อยแล้ว</h2><p>เจ้าหน้าที่จะตรวจสอบข้อมูลและติดต่อกลับ</p><Link href="/member">ดูรายการคำขอของฉัน</Link></section> :
+        <form onSubmit={submit} style={{ display: "grid", gap: 18 }}>
+          <label>ชื่อผู้ติดต่อ<input style={field} value={name} onChange={e => setName(e.target.value)} maxLength={150} required /></label>
+          <label>เบอร์โทรหรือช่องทางติดต่อ<input style={field} value={contact} onChange={e => setContact(e.target.value)} maxLength={200} required /></label>
+          <label>ประเภทประกัน<select style={field} value={type} onChange={e => setType(e.target.value)}>
+            {insuranceTypes.map(item => <option key={item} value={item}>{item}</option>)}
+          </select></label>
+          {(company || plan) && <div style={{ padding: 12, background: "#edf5ff", borderRadius: 8 }}>
+            <strong>แผนที่สนใจ</strong><div>{company || "ไม่ระบุบริษัท"} {plan ? `· ${plan}` : ""}</div>
+            <small>เจ้าหน้าที่ต้องยืนยันรายละเอียด ราคา และสิทธิ์การจำหน่ายอีกครั้ง</small>
+          </div>}
+          <label>รายละเอียดเพิ่มเติม<textarea style={field} rows={5} value={details} onChange={e => setDetails(e.target.value)} maxLength={1800} placeholder="ระบุความต้องการและช่วงเวลาที่สะดวกให้ติดต่อกลับ (ไม่ต้องส่งข้อมูลสุขภาพหรือเลขบัตรประชาชน)" /></label>
+          <label style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+            <input type="checkbox" checked={acknowledged} onChange={e => setAcknowledged(e.target.checked)} required />
+            <span>ฉันอ่าน <Link href="/privacy" target="_blank">ข้อมูลส่วนบุคคล</Link> แล้ว และรับทราบว่าจะใช้ข้อมูลที่ส่งเพื่อติดต่อกลับเกี่ยวกับคำขอนี้ (ไม่ใช่ความยินยอมรับการตลาด)</span>
+          </label>
+          {error && <p role="alert" style={{ color: "#b91c1c" }}>{error}</p>}
+          <button type="submit" disabled={submitting} style={{ padding: 14, background: "#1764b3", color: "white", border: 0, borderRadius: 8, cursor: "pointer" }}>
+            {submitting ? "กำลังส่งคำขอ..." : "ส่งคำขอใบเสนอราคา"}
+          </button>
+        </form>}
+    </div>
+  </main>;
 }
