@@ -149,7 +149,8 @@ export default function AdminPricesPage() {
           price_period: amount === null ? null : plan.price_period,
           price_source_url: amount === null ? null : plan.price_source_url?.trim(),
           price_valid_until: amount === null ? null : plan.price_valid_until,
-          price_verified_at: amount === null ? null : new Date().toISOString(),
+          // Saving a draft is not evidence of insurer price verification.
+          price_verified_at: null,
           promotion_name: hasPromotion ? plan.promotion_name?.trim() : null,
           promotion_description: hasPromotion ? plan.promotion_description?.trim() || null : null,
           discount_type: hasPromotion ? plan.discount_type : null,
@@ -158,12 +159,19 @@ export default function AdminPricesPage() {
           promotion_end_date: hasPromotion ? plan.promotion_end_date : null,
         })
         .eq("id", plan.id)
-        .select("id,price_verified_at")
+        .select("id")
         .single();
       if (error) setMessage("บันทึกไม่สำเร็จ: " + error.message);
       else {
-        editPlan(plan.id, "price_verified_at", data.price_verified_at);
-        setMessage("บันทึกราคาและโปรโมชั่นเรียบร้อยแล้ว: " + (plan.insurance_companies?.name ?? plan.plan_name));
+        const { data: refreshed, error: reloadError } = await supabase.from("insurance_plans")
+          .select(`id,plan_name,insurance_type,premium_amount,price_period,price_source_url,price_verified_at,price_valid_until,promotion_name,promotion_description,discount_type,discount_value,promotion_start_date,promotion_end_date,insurance_companies(name)`)
+          .order("created_at", { ascending: false });
+        if (reloadError) {
+          setMessage("บันทึกแล้ว แต่โหลดข้อมูลล่าสุดไม่สำเร็จ: " + reloadError.message);
+        } else {
+          setPlans((refreshed ?? []) as unknown as Plan[]);
+          setMessage("บันทึกฉบับร่างแล้ว (ยังไม่ยืนยันราคากับบริษัทประกัน): " + (plan.insurance_companies?.name ?? plan.plan_name));
+        }
       }
     } catch (e) {
       setMessage("เกิดข้อผิดพลาดขณะบันทึก: " + String(e));
@@ -179,7 +187,7 @@ export default function AdminPricesPage() {
       <header style={{ margin: "26px 0" }}>
         <h1 style={{ fontSize: 30, margin: "0 0 8px" }}>INSURE ONE</h1>
         <h2 style={{ fontSize: 23, margin: 0 }}>จัดการราคาและโปรโมชั่น</h2>
-        <p style={{ color: "#64748b", lineHeight: 1.7 }}>บันทึกราคาและโปรโมชั่นจากแหล่งที่ตรวจสอบได้เท่านั้น ข้อมูลส่วนลดจะยังไม่แสดงบนหน้าลูกค้าจนกว่าจะพัฒนาหน้าแสดงผล</p>
+        <p style={{ color: "#64748b", lineHeight: 1.7 }}>บันทึกข้อมูลเป็นฉบับร่างเท่านั้น การกดบันทึกจะล้างสถานะตรวจสอบราคา ต้องยืนยันราคาและสิทธิ์เผยแพร่ผ่านขั้นตอนอนุมัติแยกต่างหาก</p>
       </header>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginBottom: 20 }}>
         <div style={cardStyle}><span>จำนวนแผนประกัน</span><strong style={{ display: "block", fontSize: 28 }}>{plans.length}</strong></div>
@@ -218,7 +226,7 @@ export default function AdminPricesPage() {
               <span style={{ color: "#64748b", fontSize: 13 }}>{plan.price_verified_at ? "บันทึกข้อมูลราคาล่าสุด: " + new Date(plan.price_verified_at).toLocaleString("th-TH", { timeZone: "Asia/Bangkok" }) : "ยังไม่มีข้อมูลการบันทึกราคา"}</span>
               <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
                 <button type="button" disabled={savingId !== null} onClick={() => { setPlans(old => old.map(p => p.id === plan.id ? { ...p, promotion_name: null, promotion_description: null, discount_type: null, discount_value: 0, promotion_start_date: null, promotion_end_date: null } : p)); setMessage("ล้างช่องโปรโมชั่นแล้ว กรุณากดบันทึกเพื่อยืนยันการเปลี่ยนแปลง"); }} style={{ padding: "11px 16px", borderRadius: 9, border: "1px solid #cbd5e1", background: "white", cursor: "pointer" }}>ล้างโปรโมชั่น</button>
-                <button type="button" disabled={savingId !== null} onClick={() => void savePlan(plan)} style={{ padding: "11px 23px", borderRadius: 9, border: 0, background: "#1764b3", color: "white", fontWeight: 700, cursor: "pointer", opacity: savingId !== null ? .6 : 1 }}>{savingId === plan.id ? "กำลังบันทึก..." : "บันทึกราคาและโปรโมชั่น"}</button>
+                <button type="button" disabled={savingId !== null} onClick={() => void savePlan(plan)} style={{ padding: "11px 23px", borderRadius: 9, border: 0, background: "#1764b3", color: "white", fontWeight: 700, cursor: "pointer", opacity: savingId !== null ? .6 : 1 }}>{savingId === plan.id ? "กำลังบันทึก..." : "บันทึกฉบับร่าง"}</button>
               </div>
             </div>
           </section>;

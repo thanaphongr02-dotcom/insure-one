@@ -39,6 +39,15 @@ const steps = [
   { value: "policy_issued", label: "บริษัทประกันออกกรมธรรม์แล้ว" },
   { value: "cancelled", label: "ยกเลิก" },
 ];
+const allowedNext: Record<string, string[]> = {
+  awaiting_payment_channel: ["awaiting_payment_confirmation", "cancelled"],
+  awaiting_payment_confirmation: ["payment_confirmed", "cancelled"],
+  payment_confirmed: ["awaiting_policy"],
+  awaiting_policy: ["policy_issued"],
+  policy_issued: [],
+  cancelled: [],
+};
+
 const label = (status: string) => steps.find((s) => s.value === status)?.label ?? status;
 const emptyDraft = (): Draft => ({
   status: "awaiting_payment_channel",
@@ -131,6 +140,10 @@ export default function AdminOrdersPage() {
     if (busy || !authorized) return;
     const d = drafts[order.id];
     if (!d) return;
+    if (d.status !== order.status && !(allowedNext[order.status] ?? []).includes(d.status)) {
+      setError("ไม่สามารถข้ามขั้นตอนหรือย้อนสถานะได้ กรุณาเลือกสถานะถัดไปตามลำดับ");
+      return;
+    }
     if (d.status === "payment_confirmed" || d.status === "awaiting_policy" || d.status === "policy_issued") {
       if (!d.payment_reference.trim()) {
         setError("ก่อนยืนยันการชำระเงิน ต้องมีเลขอ้างอิงจากผู้รับชำระที่ตรวจสอบแล้ว");
@@ -160,9 +173,15 @@ export default function AdminOrdersPage() {
     if (!order.policy_issued_at && d.status === "policy_issued") {
       payload.policy_issued_at = new Date().toISOString();
     }
-    const { error: updateError } = await supabase.from("insurance_orders")
-      .update(payload).eq("id", order.id).select("id").single();
-    if (updateError) setError(`บันทึกไม่สำเร็จ: ${updateError.message}`);
+    const { data: savedOrder, error: updateError } = await supabase.from("insurance_orders")
+      .update(payload).eq("id", order.id).eq("status", order.status).select("id").maybeSingle();
+    if (updateError) {
+      setError(updateError.message.includes("Invalid insurance order status transition")
+        ? "ฐานข้อมูลปฏิเสธการข้ามสถานะ กรุณารีเฟรชและเลือกขั้นตอนถัดไป"
+        : `บันทึกไม่สำเร็จ: ${updateError.message}`);
+    } else if (!savedOrder) {
+      setError("ข้อมูลคำสั่งซื้อเปลี่ยนไปแล้ว กรุณารีเฟรชหน้าแล้วลองใหม่");
+    }
     else { setMessage("บันทึกสถานะเรียบร้อยแล้ว"); await load(); }
     setBusy(null);
   }
@@ -256,7 +275,8 @@ export default function AdminOrdersPage() {
                     <strong>สถานะปัจจุบัน: {label(order.status)}</strong>
                     <label>เปลี่ยนสถานะ
                       <select value={d.status} onChange={(e) => edit(order.id, "status", e.target.value)} style={{ ...fieldStyle, marginTop: 6 }}>
-                        {steps.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+                        {steps.filter((s) => s.value === order.status || (allowedNext[order.status] ?? []).includes(s.value))
+                           .map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
                       </select>
                     </label>
                     <label>รายละเอียดช่องทางชำระเงินที่ได้รับอนุญาต
