@@ -9,6 +9,7 @@ export default function RegisterPage() {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [acknowledged, setAcknowledged] = useState(false);
   const [message, setMessage] = useState("");
 
   async function handleRegister(e: React.FormEvent<HTMLFormElement>) {
@@ -17,6 +18,11 @@ export default function RegisterPage() {
 
     if (!name.trim() || !email.trim() || !phone.trim() || !password) {
       setMessage("กรุณากรอกข้อมูลให้ครบทุกช่อง");
+      return;
+    }
+
+    if (!acknowledged) {
+      setMessage("กรุณาอ่านและรับทราบข้อมูลส่วนบุคคลก่อนสมัครสมาชิก");
       return;
     }
 
@@ -60,6 +66,7 @@ export default function RegisterPage() {
       setEmail("");
       setPhone("");
       setPassword("");
+      setAcknowledged(false);
     } catch {
       setMessage("เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่");
     } finally {
@@ -126,6 +133,11 @@ export default function RegisterPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+          </label>
+
+          <label className="check" style={{ alignItems: "flex-start", fontWeight: 400 }}>
+            <input type="checkbox" checked={acknowledged} onChange={(e) => setAcknowledged(e.target.checked)} required />
+            <span>ฉันได้อ่าน <a href="/privacy" target="_blank" rel="noopener noreferrer">ข้อมูลส่วนบุคคล</a> และ <a href="/terms" target="_blank" rel="noopener noreferrer">เงื่อนไขการใช้บริการ</a> แล้ว (การรับทราบนี้ไม่ใช่ความยินยอมเพื่อการตลาด)</span>
           </label>
 
           {message && (
