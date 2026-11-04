@@ -23,7 +23,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       try {
         const { data: auth, error: authError } = await supabase.auth.getUser();
         if (!active || current !== request) return;
-        if (authError) { setAccess("error"); return; }
+        if (authError) { setAccess("signed-out"); return; }
         if (!auth.user) { setAccess("signed-out"); return; }
 
         const { data, error } = await supabase.from("admin_users")
@@ -50,7 +50,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     checking: "กำลังตรวจสอบสิทธิ์ผู้ดูแลระบบ...",
     "signed-out": "กรุณาเข้าสู่ระบบก่อนเข้าหน้าผู้ดูแลระบบ",
     denied: "บัญชีนี้ไม่ได้รับอนุญาตให้เข้าถึงหน้าผู้ดูแลระบบ",
-    error: "ตรวจสอบสิทธิ์ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง",
+    error: "ไม่สามารถตรวจสอบฐานข้อมูลผู้ดูแลระบบได้ กรุณาตรวจสอบการตั้งค่า Supabase และสิทธิ์การอ่านตาราง admin_users",
   };
   return <main style={{ maxWidth: 640, margin: "72px auto", padding: 24, lineHeight: 1.8 }}>
     <h1>INSURE ONE · Admin</h1>
