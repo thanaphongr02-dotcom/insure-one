@@ -273,6 +273,21 @@ export default function AdminOrdersPage() {
                 ) : d ? (
                   <div style={{ borderTop: "1px solid #e2e8f0", paddingTop: 18, display: "grid", gap: 14 }}>
                     <strong>สถานะปัจจุบัน: {label(order.status)}</strong>
+{!order.payment_confirmed_at && (
+  <p role="status" style={{
+    background: "#fff7ed",
+    color: "#9a3412",
+    padding: 12,
+    borderRadius: 8,
+    margin: 0
+  }}>
+    ยังไม่มีการยืนยันการชำระเงินในระบบ
+    {order.policy_number?.trim()
+      ? " แม้จะมีเลขกรมธรรม์แล้ว ก็ไม่ได้หมายความว่าชำระเงินสำเร็จหรือความคุ้มครองเริ่มต้นแล้ว"
+      : ""}
+    กรุณาตรวจสอบกับผู้รับชำระเงินที่ได้รับอนุญาตก่อนเปลี่ยนสถานะ
+  </p>
+)}
                     <label>เปลี่ยนสถานะ
                       <select value={d.status} onChange={(e) => edit(order.id, "status", e.target.value)} style={{ ...fieldStyle, marginTop: 6 }}>
                         {steps.filter((s) => s.value === order.status || (allowedNext[order.status] ?? []).includes(s.value))
@@ -286,7 +301,7 @@ export default function AdminOrdersPage() {
                       <input value={d.payment_reference} onChange={(e) => edit(order.id, "payment_reference", e.target.value)} style={{ ...fieldStyle, marginTop: 6 }} />
                     </label>
                     <label>เลขกรมธรรม์ที่บริษัทประกันออกให้จริง
-                      <input value={d.policy_number} onChange={(e) => edit(order.id, "policy_number", e.target.value)} style={{ ...fieldStyle, marginTop: 6 }} />
+                      <input value={d.policy_number} readOnly={Boolean(order.policy_number?.trim())} onChange={(e) => edit(order.id, "policy_number", e.target.value)} style={{ ...fieldStyle, marginTop: 6 }} />
                     </label>
                     <label>หมายเหตุสำหรับเจ้าหน้าที่
                       <textarea rows={3} value={d.admin_notes} onChange={(e) => edit(order.id, "admin_notes", e.target.value)} style={{ ...fieldStyle, marginTop: 6 }} />
