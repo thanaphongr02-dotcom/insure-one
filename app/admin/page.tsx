@@ -45,9 +45,9 @@ const statusColors: Record<string, string> = {
 };
 function getQuoteDetails(details: string | null) {
   const value = details ?? "";
-  const company = value.match(/^บริษัทประกันที่สนใจ:\s*(.*)$/m)?.[1]?.trim() ?? "";
-  const plan = value.match(/^แผนประกันที่สนใจ:\s*(.*)$/m)?.[1]?.trim() ?? "";
-  const extra = value.match(/^รายละเอียดเพิ่มเติม:\s*([\s\S]*)$/m)?.[1]?.trim() ?? (!company && !plan ? value.trim() : "");
+  const company = value.match(/^(?:บริษัทประกันที่สนใจ|บริษัท):\s*(.*)$/m)?.[1]?.trim() ?? "";
+  const plan = value.match(/^(?:แผนประกันที่สนใจ|แผน):\s*(.*)$/m)?.[1]?.trim() ?? "";
+  const extra = value.split("\n").filter(line => !/^(?:บริษัทประกันที่สนใจ|บริษัท|แผนประกันที่สนใจ|แผน):\s*/.test(line)).join("\n").trim();
   return { company, plan, extra };
 }
 function blankForm(quote: Quote): OfferForm {
