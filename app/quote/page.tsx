@@ -27,6 +27,11 @@ function QuoteRequestForm() {
 
   const company = params.get("company")?.slice(0, 120) ?? "";
   const plan = params.get("plan")?.slice(0, 120) ?? "";
+  const suggestedType = params.get("insurance_type");
+
+  useEffect(() => {
+    if (suggestedType && insuranceTypes.includes(suggestedType)) setType(suggestedType);
+  }, [suggestedType]);
 
   useEffect(() => {
     let active = true;
