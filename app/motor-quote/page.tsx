@@ -32,20 +32,23 @@ export default function MotorQuoteWizard() {
   const [claims, setClaims] = useState("");
   const [coverage, setCoverage] = useState("ประกันชั้น 1");
   const [submitted, setSubmitted] = useState(false);
+  const [step, setStep] = useState(0);
+  const [payment, setPayment] = useState("รายปี");
   const models = useMemo(() => carBrands[brand] ?? [], [brand]);
   const complete = Boolean(brand && model && year && variant.trim() && mileage && usage && claims);
-  const summary = [`ยี่ห้อ: ${brand}`, `รุ่น: ${model}`, `ปี: ${year}`, `รุ่นย่อย/เครื่องยนต์: ${variant}`, `เลขไมล์: ${mileage}`, `การใช้งาน: ${usage}`, `เคลม 12 เดือน: ${claims} ครั้ง`, `แผนที่สนใจ: ${coverage}`].join("\n");
+  const summary = [`ยี่ห้อ: ${brand}`, `รุ่น: ${model}`, `ปี: ${year}`, `รุ่นย่อย/เครื่องยนต์: ${variant}`, `เลขไมล์: ${mileage}`, `การใช้งาน: ${usage}`, `เคลม 12 เดือน: ${claims} ครั้ง`, `แผนที่สนใจ: ${coverage}`, `รูปแบบชำระที่สนใจ: ${payment}`].join("\n");
   const quoteUrl = "/quote?" + new URLSearchParams({ insurance_type: "ประกันรถยนต์", motor_details: summary }).toString();
   return (
-    <main style={{ maxWidth: 760, margin: "0 auto", padding: "36px 18px 80px", color: "#164d91", lineHeight: 1.6 }}>
+    <main className="motor-wizard" style={{ maxWidth: 860, margin: "0 auto", padding: "36px 18px 80px", color: "#164d91", lineHeight: 1.6 }}>
       <Link href="/">← กลับหน้าหลัก</Link>
       <header style={{ textAlign: "center", padding: "24px 0" }}>
         <div style={{ fontSize: 42 }}>🚙</div>
         <h1 style={{ marginBottom: 8 }}>เช็กแผนประกันรถยนต์</h1>
         <p>บอกรายละเอียดรถและการใช้งาน เพื่อให้เจ้าหน้าที่จัดหาใบเสนอราคาจากบริษัทที่ได้รับอนุญาต</p>
       </header>
+      <nav className="motor-steps" aria-label="ขั้นตอนขอใบเสนอราคา">{["รายละเอียดรถ", "การใช้งานและประวัติ", "เลือกความคุ้มครอง"].map((x,i)=><button key={x} type="button" className={step===i?"active":""} onClick={()=>setStep(i)}>{i+1}. {x}</button>)}</nav>
       <form onSubmit={e => { e.preventDefault(); if (complete) setSubmitted(true); }} style={{ display: "grid", gap: 20 }}>
-        <fieldset style={fieldStyle}><legend>1. รายละเอียดรถ</legend>
+        {step===0 && <fieldset style={fieldStyle}><legend>1. รายละเอียดรถ</legend>
           <label style={labelStyle}>ยี่ห้อรถ
             <select style={inputStyle} required value={brand} onChange={e => { setBrand(e.target.value); setModel(""); setSubmitted(false); }}>
               <option value="">เลือกยี่ห้อรถ</option>{Object.keys(carBrands).map(x => <option key={x} value={x}>{x === "Other" ? "ยี่ห้ออื่น ๆ" : x}</option>)}
@@ -64,8 +67,8 @@ export default function MotorQuoteWizard() {
           <label style={labelStyle}>รุ่นย่อย / ขนาดเครื่องยนต์
             <input style={inputStyle} required maxLength={100} value={variant} onChange={e => { setVariant(e.target.value); setSubmitted(false); }} placeholder="เช่น 1.5 E, 2.0 Turbo, EV" />
           </label>
-        </fieldset>
-        <fieldset style={fieldStyle}><legend>2. การใช้งานและประวัติรถ</legend>
+        </fieldset>}
+        {step===1 && <fieldset style={fieldStyle}><legend>2. การใช้งานและประวัติรถ</legend>
           <label style={labelStyle}>เลขไมล์ปัจจุบัน
             <select style={inputStyle} required value={mileage} onChange={e => { setMileage(e.target.value); setSubmitted(false); }}>
               <option value="">ระบุเลขไมล์</option>{["ต่ำกว่า 10,000 กม.", "10,000–30,000 กม.", "30,001–60,000 กม.", "60,001–100,000 กม.", "มากกว่า 100,000 กม."].map(x => <option key={x}>{x}</option>)}
@@ -77,13 +80,15 @@ export default function MotorQuoteWizard() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4,minmax(0,1fr))", gap: 8 }}>
             {["0", "1", "2", "มากกว่า 3"].map(x => <label key={x} style={{ ...choiceStyle, textAlign: "center", borderColor: claims === x ? "#1569c7" : "#d5e3f5" }}><input type="radio" name="claims" required checked={claims === x} onChange={() => { setClaims(x); setSubmitted(false); }} /> {x}</label>)}
           </div>
-        </fieldset>
-        <fieldset style={fieldStyle}><legend>3. เลือกประเภทความคุ้มครอง</legend>
+        </fieldset>}
+        {step===2 && <fieldset style={fieldStyle}><legend>3. เลือกประเภทความคุ้มครอง</legend>
           <div style={{ display: "grid", gap: 8 }}>
             {coverages.map(x => <label key={x} style={{ ...choiceStyle, background: coverage === x ? "#eaf4ff" : "white" }}><input type="radio" name="coverage" checked={coverage === x} onChange={() => { setCoverage(x); setSubmitted(false); }} /> {x}</label>)}
           </div>
-        </fieldset>
-        <button type="submit" disabled={!complete} style={{ ...inputStyle, cursor: complete ? "pointer" : "not-allowed", color: "white", background: complete ? "#1167c5" : "#9baec2", border: 0, fontWeight: 700 }}>ดูสรุปข้อมูลและขอใบเสนอราคา</button>
+          <div style={{marginTop:16}}>รูปแบบการชำระที่สนใจ</div><div className="motor-payment">{["รายปี","รายเดือน (หากบริษัทมีบริการ)"].map(x=><button type="button" key={x} className={payment===x?"selected":""} onClick={()=>setPayment(x)}>{x}</button>)}</div>
+        </fieldset>}
+        <div className="motor-navigation">{step>0&&<button type="button" onClick={()=>setStep(step-1)}>← ย้อนกลับ</button>}{step<2&&<button type="button" onClick={()=>setStep(step+1)}>ถัดไป →</button>}</div>
+        {step===2&&<button type="submit" disabled={!complete} style={{ ...inputStyle, cursor: complete ? "pointer" : "not-allowed", color: "white", background: complete ? "#1167c5" : "#9baec2", border: 0, fontWeight: 700 }}>ดูสรุปข้อมูลและขอใบเสนอราคา</button>}
       </form>
       {submitted && <section aria-live="polite" style={{ ...fieldStyle, marginTop: 24, whiteSpace: "pre-wrap" }}>
         <h2>สรุปข้อมูลสำหรับขอใบเสนอราคา</h2>
