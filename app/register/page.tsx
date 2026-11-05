@@ -9,6 +9,7 @@ export default function RegisterPage() {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [acknowledged, setAcknowledged] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -26,8 +27,8 @@ export default function RegisterPage() {
       return;
     }
 
-    if (password.length < 8) {
-      setMessage("รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร");
+    if (password.length < 10 || !/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
+      setMessage("รหัสผ่านต้องมีอย่างน้อย 10 ตัวอักษร ประกอบด้วยตัวอักษรและตัวเลข");
       return;
     }
 
@@ -66,6 +67,7 @@ export default function RegisterPage() {
       setEmail("");
       setPhone("");
       setPassword("");
+      setShowPassword(false);
       setAcknowledged(false);
     } catch {
       setMessage("เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่");
@@ -75,14 +77,14 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="form-page">
+    <main className="form-page auth-experience auth-register">
       <a className="back-link" href="/">
         ← กลับหน้าแรก
       </a>
 
-      <section className="form-card">
+      <div className="auth-layout"><aside className="auth-showcase"><a href="/" className="auth-showcase-brand">✦ INSURE ONE</a><div className="auth-showcase-visual" aria-hidden="true"><span>🛡️</span><span>🏡</span><span>💙</span><span>🚘</span></div><span className="auth-showcase-kicker">YOUR COVERAGE, YOUR WAY</span><h2>เริ่มต้นดูแลทุกสิ่งสำคัญในชีวิต</h2><p>ค้นหาความคุ้มครอง ส่งคำขอใบเสนอราคา และติดตามความคืบหน้าได้จากบัญชีเดียว</p><div className="auth-showcase-points"><span>✓ สมัครสมาชิกฟรี</span><span>✓ ติดตามคำขอได้</span><span>✓ ข้อมูลอยู่ภายใต้การควบคุมของคุณ</span></div></aside><section className="form-card">
         <span className="eyebrow">JOIN INSURE ONE</span>
-        <h1>สมัครสมาชิก</h1>
+        <h1>สร้างบัญชีของคุณ</h1>
         <p>สร้างบัญชีเพื่อเริ่มต้นใช้งาน INSURE ONE</p>
 
         <form onSubmit={handleRegister}>
@@ -123,17 +125,19 @@ export default function RegisterPage() {
           </label>
 
           <label>
-            รหัสผ่าน (อย่างน้อย 8 ตัวอักษร)
+            รหัสผ่าน (อย่างน้อย 10 ตัวอักษร มีตัวอักษรและตัวเลข)
             <input
-              type="password"
-              placeholder="ตั้งรหัสผ่าน"
+              type={showPassword ? "text" : "password"}
+              placeholder="ตั้งรหัสผ่านที่ปลอดภัย"
               autoComplete="new-password"
-              minLength={8}
+              minLength={10}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
           </label>
+
+          <label className="auth-password-toggle"><input type="checkbox" checked={showPassword} onChange={(e) => setShowPassword(e.target.checked)} /> แสดงรหัสผ่าน</label>
 
           <label className="check" style={{ alignItems: "flex-start", fontWeight: 400 }}>
             <input type="checkbox" checked={acknowledged} onChange={(e) => setAcknowledged(e.target.checked)} required />
@@ -154,7 +158,7 @@ export default function RegisterPage() {
         <p>
           มีบัญชีแล้ว? <a href="/login">เข้าสู่ระบบ</a>
         </p>
-      </section>
+      </section></div>
     </main>
   );
 }
