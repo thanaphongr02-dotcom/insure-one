@@ -1,0 +1,33 @@
+name: INSURE ONE public smoke test
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+permissions:
+  contents: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check public routes
+        run: |
+          set -e
+          for path in / /register /login /products /quote /member /admin /contact /privacy /terms; do
+            echo "Checking $path"
+            curl --fail --location --silent --show-error --retry 2 --max-time 30 --output /dev/null "https://insure-one-seven.vercel.app$path"
+          done
+      - name: Verify unapproved integrations remain disabled
+        run: |
+          python3 - <<'PY'
+          import json, urllib.request
+          base = "https://insure-one-seven.vercel.app"
+          def fetch(path):
+              with urllib.request.urlopen(base + path, timeout=30) as response:
+                  return json.load(response)
+          carriers = fetch("/api/insurance/carriers")
+          assert carriers.get("liveQuotesAvailable") is False
+          payments = fetch("/api/payments/methods")
+          assert not any(method.get("enabled") for method in payments.get("methods", []))
+          print("Public smoke checks passed")
+          PY
