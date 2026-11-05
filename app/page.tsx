@@ -11,21 +11,24 @@ const categories = [
   { icon: "✈️", title: "ประกันเดินทาง", desc: "เที่ยวอย่างอุ่นใจ" },
   { icon: "🌱", title: "ประกันการเกษตร", desc: "พืชผลและฟาร์ม" },
   { icon: "🏢", title: "ประกันธุรกิจ", desc: "กิจการและร้านค้า" },
+  { icon: "▦", title: "ดูทั้งหมด", desc: "ประกันทุกประเภท" },
 ];
 
 export default function Home() {
   return <main className="storefront">
+    <div className="storefront-announcement"><span>✦ ค้นหาและเปรียบเทียบแผนประกันได้ในที่เดียว</span><a href="/products">สำรวจแผนทั้งหมด →</a></div>
     <header className="topbar storefront-topbar">
-      <a className="brand" href="/" aria-label="INSURE ONE หน้าแรก"><span className="brand-mark">◆</span><span>INSURE <b>ONE</b><small>ประกันครบ เลือกง่าย ใส่ใจทุกชีวิต</small></span></a>
-      <nav aria-label="เมนูหลัก"><a href="/">หน้าแรก</a><a href="#products">ผลิตภัณฑ์</a><a href="#promotions">โปรโมชั่น</a><a href="/products">เปรียบเทียบแผน</a><a href="#how">วิธีใช้งาน</a><a href="/contact">ติดต่อเรา</a></nav>
+      <a className="brand" href="/" aria-label="INSURE ONE หน้าแรก"><span className="brand-mark">🛡</span><span>INSURE <b>ONE</b><small>ประกันครบ เลือกง่าย ใส่ใจทุกชีวิต</small></span></a>
+      <nav aria-label="เมนูหลัก"><a className="storefront-nav-active" href="/">⌂ หน้าแรก</a><a href="#products">▣ ผลิตภัณฑ์</a><a href="#promotions">♥ โปรโมชั่น</a><a href="/products">▤ เปรียบเทียบแผน</a><a href="#how">▣ วิธีใช้งาน</a><a href="/contact">☎ ติดต่อเรา</a></nav>
       <div className="account-actions"><a className="login" href="/login">เข้าสู่ระบบ</a><a className="button button-small" href="/register">สมัครสมาชิก</a></div>
     </header>
 
     <HeroCarousel />
+    <div className="storefront-trust-rail" aria-label="จุดเด่นของบริการ"><div><span>🛡️</span><strong>เปรียบเทียบอย่างโปร่งใส</strong><small>ตรวจสอบเงื่อนไขก่อนตัดสินใจ</small></div><div><span>▦</span><strong>หลายหมวดประกัน</strong><small>ค้นหาแผนตามความต้องการ</small></div><div><span>💬</span><strong>ขอคำแนะนำได้</strong><small>ส่งคำขอผ่านระบบออนไลน์</small></div><div><span>📱</span><strong>ใช้งานได้ทุกอุปกรณ์</strong><small>คอมพิวเตอร์และมือถือ</small></div></div>
 
     <section className="storefront-category-wrap" id="products" aria-labelledby="category-title">
       <div className="storefront-category-heading"><span className="eyebrow">EXPLORE INSURANCE</span><h2 id="category-title">เลือกประกันที่ใช่สำหรับคุณ</h2><p>เริ่มต้นจากประเภทที่สนใจ</p></div>
-      <div className="storefront-category-strip">{categories.map(c => <a key={c.title} href={`/products?category=${encodeURIComponent(c.title)}`} className="storefront-category-tile"><span className="storefront-category-emoji" aria-hidden="true">{c.icon}</span><strong>{c.title}</strong><small>{c.desc}</small></a>)}</div>
+      <div className="storefront-category-strip">{categories.map(c => <a key={c.title} href={c.title === "ดูทั้งหมด" ? "/products" : `/products?category=${encodeURIComponent(c.title)}`} className="storefront-category-tile"><span className="storefront-category-emoji" aria-hidden="true">{c.icon}</span><strong>{c.title}</strong><small>{c.desc}</small></a>)}</div>
     </section>
 
     <section className="storefront-campaigns section" aria-label="ค้นหาความคุ้มครองตามไลฟ์สไตล์">
