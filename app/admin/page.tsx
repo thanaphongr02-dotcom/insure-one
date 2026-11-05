@@ -180,7 +180,7 @@ export default function AdminPage() {
       if (result.error) throw result.error;
       setOffers(previous => ({ ...previous, [quoteId]: result.data as Offer }));
       setEditingId(null); setForm(null);
-      setMessage(publish ? "ส่งใบเสนอราคาเรียบร้อยแล้ว (สมาชิกจะเห็นเมื่อเพิ่มหน้าแสดงข้อเสนอ)" : "บันทึกฉบับร่างเรียบร้อยแล้ว");
+      setMessage(publish ? "ส่งใบเสนอราคาเรียบร้อยแล้ว สมาชิกสามารถดูได้ในหน้ารายละเอียดคำขอ" : "บันทึกฉบับร่างเรียบร้อยแล้ว");
     } catch (error) {
       setMessage("บันทึกใบเสนอราคาไม่สำเร็จ: " + (error instanceof Error ? error.message : "โปรดลองใหม่"));
     } finally { setSavingId(null); }
