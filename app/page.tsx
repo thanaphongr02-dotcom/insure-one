@@ -1,3 +1,5 @@
+import FeaturedPromotions from "./FeaturedPromotions";
+
 const categories = [
   { icon: "🚗", title: "ประกันรถยนต์", desc: "ดูตัวเลือกความคุ้มครองรถยนต์" },
   { icon: "❤️", title: "ประกันชีวิต", desc: "ค้นหาผลิตภัณฑ์ประกันชีวิต" },
@@ -19,6 +21,7 @@ export default function Home() {
         </a>
         <nav>
           <a href="#products">ผลิตภัณฑ์</a>
+          <a href="#promotions">โปรโมชั่น</a>
           <a href="#how">วิธีใช้งาน</a>
           <a href="#contact">ติดต่อเรา</a>
         </nav>
@@ -71,6 +74,8 @@ export default function Home() {
           ))}
         </div>
       </section>
+
+      <FeaturedPromotions />
 
       <section className="how-section" id="how">
         <div className="section-heading centered">
