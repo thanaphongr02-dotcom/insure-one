@@ -1,5 +1,6 @@
 import FeaturedPromotions from "./FeaturedPromotions";
 import HeroCarousel from "./HeroCarousel";
+import PlanFinder from "./PlanFinder";
 
 const categories = [
   { icon: "🚘", title: "ประกันรถยนต์", desc: "รถยนต์และรถจักรยานยนต์" },
@@ -35,6 +36,7 @@ export default function Home() {
         <a className="storefront-campaign-card campaign-travel" href="/products?category=ประกันเดินทาง"><span className="campaign-label">สำหรับนักเดินทาง</span><h3>พร้อมออกเดินทาง<br/>อย่างมั่นใจ</h3><p>สำรวจความคุ้มครองก่อนทริป</p><strong>ดูแผนเดินทาง →</strong></a>
       </div>
     </section>
+    <PlanFinder />
     <FeaturedPromotions />
 
     <section className="storefront-feature-grid section" aria-label="บริการของเรา">
