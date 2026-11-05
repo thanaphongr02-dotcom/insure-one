@@ -147,7 +147,21 @@ function ProductsContent() {
         </section>}
         {!loading && !errorMessage && <p aria-live="polite" style={{ color: "#64748b" }}>พบ {visiblePlans.length} แผนประกัน</p>}
         {errorMessage && <div role="alert" style={{ background: "#fff1f2", border: "1px solid #fecdd3", padding: 16, borderRadius: 12, marginBottom: 20 }}>โหลดแผนประกันไม่สำเร็จ: {errorMessage}</div>}
-        {!errorMessage && plans.length === 0 && <p>ยังไม่มีแผนประกันที่เผยแพร่ในระบบ</p>}
+        {!errorMessage && plans.length === 0 && (
+          <section aria-label="ขอคำปรึกษาประกันภัย" style={{ background: "linear-gradient(135deg, #ffffff, #eaf3ff)", border: "1px solid #cbdff7", borderRadius: 18, padding: "32px 26px", margin: "18px 0 24px" }}>
+            <div style={{ fontSize: 38, marginBottom: 12 }} aria-hidden="true">🛡️</div>
+            <h2 style={{ fontSize: 24, margin: "0 0 12px" }}>ยังไม่มีแผนประกันที่ผ่านการตรวจสอบเพื่อเผยแพร่</h2>
+            <p style={{ color: "#475569", lineHeight: 1.8, maxWidth: 700 }}>
+              คุณยังสามารถส่งคำขอคำปรึกษาหรือขอใบเสนอราคาได้ โดยเจ้าหน้าที่จะติดต่อกลับเพื่อสอบถามความต้องการ
+              ทั้งนี้ การส่งคำขอไม่ใช่การยืนยันราคา การรับประกันภัย หรือการออกกรมธรรม์
+            </p>
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 20 }}>
+              <Link href="/quote" style={{ background: "#1764b3", color: "#fff", padding: "14px 22px", borderRadius: 10, fontWeight: 700, textDecoration: "none" }}>ขอใบเสนอราคา / คำปรึกษา</Link>
+              <Link href="/register" style={{ border: "1px solid #1764b3", color: "#1764b3", padding: "14px 22px", borderRadius: 10, fontWeight: 700, textDecoration: "none" }}>สมัครสมาชิกเพื่อส่งคำขอ</Link>
+            </div>
+            <p style={{ fontSize: 13, color: "#64748b", marginTop: 18 }}>กรุณาอย่าส่งเลขบัตรประชาชน ข้อมูลสุขภาพ หรือข้อมูลการชำระเงินผ่านช่องรายละเอียดคำขอ</p>
+          </section>
+        )}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20 }}>
           {visiblePlans.map((plan) => {
             const company = plan.insurance_companies;
