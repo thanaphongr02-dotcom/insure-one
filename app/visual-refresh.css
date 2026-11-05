@@ -99,3 +99,20 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .company-identity{display:inline-block;font-size:13px;font-weight:900;letter-spacing:.04em;color:#1428a0;padding:8px 10px;background:#f1f4ff;border-radius:8px}
 .official-product-card:has(.official-product-company span:first-child) .company-identity{max-width:100%}
 @media(max-width:600px){.simple-search-bottom{align-items:flex-start}.advanced-filter-grid{grid-template-columns:1fr}}
+
+/* Insurance education and disclosure */
+.insurance-trust-panel{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:22px 0 30px}
+.insurance-trust-panel>div{padding:20px;border:1px solid #d9e6f3;background:#fff;border-radius:16px}
+.insurance-trust-panel strong{color:#174879;font-size:15px}
+.insurance-trust-panel p{font-size:13px;color:#597088;line-height:1.8;margin:9px 0}
+.insurance-trust-panel a{color:#165ca7;font-weight:800;font-size:13px}
+.insurance-guide-details{padding:25px;border-radius:22px;background:#f0f7ff;border:1px solid #dbe8f6;margin-bottom:30px}
+.insurance-guide-details h2{font-size:clamp(21px,3vw,27px);margin:0 0 6px;color:#163e70}
+.insurance-guide-details>p{font-size:13px;color:#5c7086;line-height:1.7;margin-bottom:18px}
+.insurance-guide-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:13px}
+.insurance-guide-grid article{display:flex;flex-direction:column;background:#fff;border:1px solid #dce7f4;border-radius:15px;padding:18px}
+.insurance-guide-grid h3{color:#154d87;font-size:17px;margin:0 0 10px}
+.insurance-guide-grid p{font-size:13px;line-height:1.75;color:#556b81;margin:0 0 13px}
+.insurance-guide-grid strong{font-size:13px;color:#244b72}
+.insurance-guide-grid a{display:grid;place-items:center;min-height:45px;padding:9px;margin-top:auto;border-radius:10px;background:#155ca8;color:white;font-size:13px;font-weight:800;text-decoration:none;text-align:center}
+@media(max-width:800px){.insurance-trust-panel{grid-template-columns:1fr}.insurance-guide-details{padding:16px}}
