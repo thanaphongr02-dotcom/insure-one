@@ -8,6 +8,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -45,12 +46,12 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="form-page">
+    <main className="form-page auth-experience auth-login">
       <a className="back-link" href="/">
         ← กลับหน้าแรก
       </a>
 
-      <section className="form-card">
+      <div className="auth-layout"><aside className="auth-showcase"><a href="/" className="auth-showcase-brand">✦ INSURE ONE</a><div className="auth-showcase-visual" aria-hidden="true"><span>🛡️</span><span>🏡</span><span>💙</span><span>🚘</span></div><span className="auth-showcase-kicker">WELCOME BACK</span><h2>ทุกความคุ้มครอง เริ่มจากความมั่นใจ</h2><p>เข้าสู่พื้นที่สมาชิกเพื่อดูคำขอ ติดตามสถานะ และจัดการข้อมูลของคุณได้สะดวกขึ้น</p><div className="auth-showcase-points"><span>✓ พื้นที่สมาชิกส่วนตัว</span><span>✓ ติดตามสถานะคำขอ</span><span>✓ ติดต่อเจ้าหน้าที่ได้ง่าย</span></div></aside><section className="form-card">
         <span className="eyebrow">MEMBER AREA</span>
 
         <h1>เข้าสู่ระบบ</h1>
@@ -72,7 +73,7 @@ export default function LoginPage() {
           <label>
             รหัสผ่าน
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               placeholder="รหัสผ่าน"
               autoComplete="current-password"
               value={password}
@@ -80,6 +81,8 @@ export default function LoginPage() {
               required
             />
           </label>
+
+          <label className="auth-password-toggle"><input type="checkbox" checked={showPassword} onChange={(e) => setShowPassword(e.target.checked)} /> แสดงรหัสผ่าน</label>
 
           {message && (
             <p role="status" aria-live="polite">
@@ -95,7 +98,7 @@ export default function LoginPage() {
         <p>
           ยังไม่มีบัญชี? <a href="/register">สมัครสมาชิก</a>
         </p>
-      </section>
+      </section></div>
     </main>
   );
 }
