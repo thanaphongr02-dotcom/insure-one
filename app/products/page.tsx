@@ -83,7 +83,7 @@ function ProductsContent() {
   }, []);
 
   const today = bangkokToday();
-  const categories = Array.from(new Set(plans.map(p => p.insurance_type))).sort();
+  const categories = Array.from(new Set(["ประกันรถยนต์", "ประกันสุขภาพ", "ประกันชีวิต", "ประกันอุบัติเหตุ", "ประกันบ้านและทรัพย์สิน", "ประกันเดินทาง", "ประกันการเกษตร", "ประกันธุรกิจ", ...plans.map(p => p.insurance_type)])).sort((a,b) => a.localeCompare(b, "th"));
   const visiblePlans = plans.filter(p => (category === "all" || p.insurance_type === category) && (companyFilter === "all" || p.insurance_companies?.name === companyFilter) && (priceFilter === "all" || (priceFilter === "verified" ? priceVerified(p) : !priceVerified(p))) && [p.plan_name, p.insurance_type, p.insurance_companies?.name ?? "", p.coverage_summary ?? ""].some(value => value.toLocaleLowerCase("th-TH").includes(search.trim().toLocaleLowerCase("th-TH"))));
   if (sort === "company") visiblePlans.sort((a,b) => (a.insurance_companies?.name ?? "").localeCompare(b.insurance_companies?.name ?? "", "th"));
   if (sort === "name") visiblePlans.sort((a,b) => a.plan_name.localeCompare(b.plan_name, "th"));
@@ -157,7 +157,7 @@ function ProductsContent() {
               ทั้งนี้ การส่งคำขอไม่ใช่การยืนยันราคา การรับประกันภัย หรือการออกกรมธรรม์
             </p>
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 20 }}>
-              <Link href="/quote" style={{ background: "#1764b3", color: "#fff", padding: "14px 22px", borderRadius: 10, fontWeight: 700, textDecoration: "none" }}>ขอใบเสนอราคา / คำปรึกษา</Link>
+              <Link href={`/quote?insurance_type=${encodeURIComponent(category === "all" ? "อื่น ๆ" : category)}`} style={{ background: "#1764b3", color: "#fff", padding: "14px 22px", borderRadius: 10, fontWeight: 700, textDecoration: "none" }}>ขอใบเสนอราคา / คำปรึกษา</Link>
               <Link href="/register" style={{ border: "1px solid #1764b3", color: "#1764b3", padding: "14px 22px", borderRadius: 10, fontWeight: 700, textDecoration: "none" }}>สมัครสมาชิกเพื่อส่งคำขอ</Link>
             </div>
             <p style={{ fontSize: 13, color: "#64748b", marginTop: 18 }}>กรุณาอย่าส่งเลขบัตรประชาชน ข้อมูลสุขภาพ หรือข้อมูลการชำระเงินผ่านช่องรายละเอียดคำขอ</p>
