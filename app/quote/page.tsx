@@ -28,6 +28,11 @@ function QuoteRequestForm() {
   const company = params.get("company")?.slice(0, 120) ?? "";
   const plan = params.get("plan")?.slice(0, 120) ?? "";
   const suggestedType = params.get("insurance_type");
+  const motorDetails = params.get("motor_details")?.slice(0, 1500) ?? "";
+
+  useEffect(() => {
+    if (motorDetails) setDetails(previous => previous || motorDetails);
+  }, [motorDetails]);
 
   useEffect(() => {
     if (suggestedType && insuranceTypes.includes(suggestedType)) setType(suggestedType);
