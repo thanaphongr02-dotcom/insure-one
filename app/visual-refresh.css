@@ -65,3 +65,16 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .insurance-category-actions a{border:1px solid #145da9;background:#145da9;color:white}
 .insurance-category-note{color:#65788d;font-size:12px;line-height:1.7;margin:14px 0 0}
 @media(prefers-reduced-motion:reduce){.insurance-category-card{transition:none}.insurance-category-card:hover{transform:none}}
+
+.official-catalog{margin:34px 0;padding:26px;border-radius:24px;background:linear-gradient(135deg,#eaf4ff,#fff);border:1px solid #d7e7f7}
+.official-catalog-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:14px}
+.official-product-card{display:flex;flex-direction:column;background:white;border:1px solid #dbe7f4;border-radius:17px;padding:20px;box-shadow:0 6px 20px #103d7210}
+.official-product-company{color:#5278a4;font-size:12px;font-weight:800;margin-bottom:9px}
+.official-product-card h3{font-size:18px;line-height:1.4;color:#143e71;margin:0 0 10px}
+.official-product-category{align-self:flex-start;background:#e9f3ff;border-radius:999px;color:#155ca9;padding:5px 10px;font-size:12px;font-weight:700}
+.official-product-card p{font-size:13px;line-height:1.75;color:#546b82}
+.official-product-card .official-product-warning{color:#995e12;background:#fff8e7;border-radius:9px;padding:10px}
+.official-product-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:auto}
+.official-product-actions a{min-height:46px;padding:9px;border-radius:10px;text-decoration:none;display:grid;place-items:center;text-align:center;font-size:12px;font-weight:800;background:#f1f7ff;border:1px solid #c9def5;color:#155ba6}
+.official-product-actions a:last-child{background:#155ba6;color:white}
+@media(max-width:550px){.official-catalog{padding:16px}.official-catalog-grid{grid-template-columns:1fr}}
