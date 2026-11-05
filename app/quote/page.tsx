@@ -65,10 +65,19 @@ function QuoteRequestForm() {
       setError("ข้อมูลยาวเกินกว่าที่ระบบรองรับ");
       return;
     }
+    if (contact.trim().length < 5 || name.trim().length < 2) {
+      setError("กรุณาระบุชื่อและช่องทางติดต่อที่ถูกต้อง");
+      return;
+    }
     setSubmitting(true);
     const selectedPlan = [company && `บริษัท: ${company}`, plan && `แผน: ${plan}`].filter(Boolean).join("\n");
     const combinedDetails = [selectedPlan, details.trim()].filter(Boolean).join("\n\n");
     try {
+      const { data: currentAuth, error: currentAuthError } = await supabase.auth.getUser();
+      if (currentAuthError || !currentAuth.user || currentAuth.user.id !== userId) {
+        setError("เซสชันหมดอายุ กรุณาเข้าสู่ระบบอีกครั้ง");
+        return;
+      }
       const { error: insertError } = await supabase.from("quote_requests").insert({
         user_id: userId,
         contact_name: name.trim(),
