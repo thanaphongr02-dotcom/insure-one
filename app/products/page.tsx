@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { supabase } from "@/Lib/supabase";
 
 type Company = { id: string; name: string; logo_url: string | null };
@@ -38,12 +39,14 @@ const bangkokToday = () => {
   return `${part("year")}-${part("month")}-${part("day")}`;
 };
 
-export default function ProductsPage() {
+function ProductsContent() {
+  const searchParams = useSearchParams();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("all");
+  const [category, setCategory] = useState(() => searchParams.get("category") || "all");
+  useEffect(() => { setCategory(searchParams.get("category") || "all"); }, [searchParams]);
   const [sort, setSort] = useState("newest");
 
   useEffect(() => {
@@ -184,3 +187,5 @@ export default function ProductsPage() {
     </main>
   );
 }
+
+export default function ProductsPage() { return <Suspense fallback={<main style={{padding:40}}>กำลังโหลดแผนประกัน...</main>}><ProductsContent /></Suspense>; }
