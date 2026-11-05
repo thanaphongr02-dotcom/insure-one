@@ -4,20 +4,62 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 
 const carBrands: Record<string, string[]> = {
-  Toyota: ["Yaris", "Yaris Ativ", "Corolla Altis", "Camry", "Hilux Revo", "Fortuner", "Corolla Cross"],
-  Honda: ["City", "Civic", "Accord", "HR-V", "CR-V", "Jazz"],
-  Isuzu: ["D-Max", "MU-X"],
-  Mitsubishi: ["Triton", "Pajero Sport", "Xpander"],
-  Mazda: ["Mazda 2", "Mazda 3", "CX-3", "CX-5", "CX-30"],
-  Nissan: ["Almera", "Navara", "Kicks", "GT-R"],
-  Ford: ["Ranger", "Everest"],
-  Suzuki: ["Swift", "Celerio", "Ertiga"],
-  MG: ["MG3", "MG5", "ZS", "HS", "MG4"],
-  BMW: ["3 Series", "5 Series", "X1", "X3"],
-  Mercedes: ["C-Class", "E-Class", "GLC"],
-  BYD: ["Dolphin", "Atto 3", "Seal"],
-  Other: ["รุ่นอื่น ๆ"],
+  Toyota: ["Yaris","Yaris Ativ","Vios","Corolla Altis","Corolla Cross","Camry","Prius","C-HR","Hilux Revo","Hilux Champ","Fortuner","Innova","Innova Zenix","Sienta","Veloz","Avanza","Alphard","Vellfire","Land Cruiser","bZ4X","GR 86","Supra","Hiace","Commuter"],
+  Honda: ["City","City Hatchback","Civic","Accord","Jazz","Brio","Brio Amaze","HR-V","CR-V","BR-V","WR-V","Mobilio","Freed","Odyssey","Stepwgn","e:N1"],
+  Isuzu: ["D-Max","MU-X","Dragon Eye","TFR","Elf"],
+  Mitsubishi: ["Triton","Pajero Sport","Xpander","Xpander Cross","Mirage","Attrage","Lancer","Lancer EX","Pajero","Outlander","Delica"],
+  Nissan: ["Almera","March","Note","Sylphy","Teana","Tiida","Sunny","Navara","Terra","Kicks","X-Trail","Juke","GT-R","370Z","Leaf","Serena"],
+  Mazda: ["Mazda 2","Mazda 3","Mazda 6","CX-3","CX-30","CX-5","CX-8","CX-9","CX-60","CX-80","BT-50","MX-5"],
+  Ford: ["Ranger","Ranger Raptor","Everest","Fiesta","Focus","EcoSport","Mustang","Territory","Escape"],
+  Suzuki: ["Swift","Celerio","Ertiga","XL7","Ciaz","Carry","Jimny","Vitara"],
+  MG: ["MG3","MG4","MG5","MG6","ZS","ZS EV","HS","HS PHEV","EP","ES","Extender","Maxus 9","Cyberster"],
+  BYD: ["Dolphin","Atto 3","Seal","Sealion 6","Sealion 7","M6","Denza D9"],
+  GWM: ["ORA Good Cat","ORA 07","Haval H6","Haval Jolion","Tank 300","Tank 500","Poer"],
+  Hyundai: ["Grand i10","Accent","Elantra","Sonata","Creta","Tucson","Santa Fe","Staria","H-1","Ioniq 5","Ioniq 6","Kona"],
+  Kia: ["Picanto","Rio","Cerato","Seltos","Sportage","Sorento","Carnival","EV5","EV6","EV9"],
+  BMW: ["1 Series","2 Series","3 Series","4 Series","5 Series","6 Series","7 Series","X1","X2","X3","X4","X5","X6","X7","iX1","iX3","i4","i5","i7","iX","Z4"],
+  "Mercedes-Benz": ["A-Class","B-Class","C-Class","E-Class","S-Class","CLA","CLS","GLA","GLB","GLC","GLE","GLS","G-Class","EQA","EQB","EQE","EQS","V-Class"],
+  Audi: ["A1","A3","A4","A5","A6","A7","A8","Q2","Q3","Q5","Q7","Q8","e-tron","Q4 e-tron","Q8 e-tron","TT","R8"],
+  Volkswagen: ["Polo","Golf","Passat","Tiguan","Touareg","Caravelle","Multivan","Transporter","Beetle","ID.4","ID. Buzz"],
+  Volvo: ["S60","S90","V40","V60","V90","XC40","XC60","XC90","EX30","EX40","EX90"],
+  Subaru: ["XV","Crosstrek","Forester","Outback","Impreza","WRX","BRZ","Levorg"],
+  Peugeot: ["2008","3008","5008","408","508"],
+  Porsche: ["Macan","Cayenne","Panamera","Taycan","911","718 Cayman","718 Boxster"],
+  Lexus: ["IS","ES","LS","UX","NX","RX","GX","LX","LM","RZ"],
+  Tesla: ["Model 3","Model Y","Model S","Model X"],
+  NETA: ["V","V-II","X","S"],
+  AION: ["Y Plus","ES","V","UT"],
+  Deepal: ["S07","L07","S05"],
+  Changan: ["CS35","CS55","UNI-T","UNI-K","Lumin"],
+  OMODA: ["C5","E5","C7"],
+  JAECOO: ["J7","J8","J5"],
+  Chery: ["Tiggo 4","Tiggo 7","Tiggo 8"],
+  Wuling: ["Air EV","Binguo EV","Mini EV"],
+  Leapmotor: ["C10","T03"],
+  Zeekr: ["X","001","009","7X"],
+  XPENG: ["G6","G9","X9","P7"],
+  NIO: ["ET5","ET7","ES6","ES8"],
+  MINI: ["Cooper","Countryman","Clubman","Aceman"],
+  Jeep: ["Wrangler","Compass","Cherokee","Grand Cherokee"],
+  LandRover: ["Defender","Discovery","Range Rover","Range Rover Evoque","Range Rover Sport","Discovery Sport"],
+  Jaguar: ["XE","XF","F-Pace","E-Pace","I-Pace"],
+  Chevrolet: ["Colorado","Trailblazer","Captiva","Cruze","Sonic","Aveo","Spin"],
+  Fiat: ["500","500e","Panda","Ducato"],
+  Renault: ["Clio","Megane","Koleos","Captur"],
+  Citroen: ["C3","C4","C5 Aircross"],
+  SsangYong: ["Tivoli","Korando","Rexton","Stavic"],
+  Proton: ["Saga","Persona","Exora","Preve"],
+  Tata: ["Xenon","Super Ace"],
+  Daihatsu: ["Mira","Move","Tanto","Hijet"],
+  Lamborghini: ["Huracan","Aventador","Urus","Revuelto"],
+  Ferrari: ["Roma","Portofino","488","F8","296","SF90","Purosangue"],
+  Maserati: ["Ghibli","Levante","Grecale","Quattroporte"],
+  Bentley: ["Continental GT","Bentayga","Flying Spur"],
+  RollsRoyce: ["Ghost","Phantom","Cullinan","Spectre"],
+  AstonMartin: ["Vantage","DB11","DB12","DBX"],
+  Other: [],
 };
+const OTHER_MODEL = "รุ่นอื่น ๆ (ระบุเอง)";
 const usageOptions = ["ใช้ส่วนตัว", "รับส่งผู้โดยสารหรือบริการเดลิเวอรี่", "ให้เช่ารถ ระยะสั้น", "ให้เช่ารถ ระยะยาว", "การใช้รถเพื่อประกอบอาชีพหรือธุรกิจแบบอื่น ๆ"];
 const coverages = ["ประกันชั้น 1", "ประกันชั้น 2+", "ประกันชั้น 3+", "ประกันชั้น 2", "ประกันชั้น 3", "พ.ร.บ."];
 const years = Array.from({ length: 35 }, (_, i) => String(new Date().getFullYear() + 1 - i));
@@ -25,6 +67,8 @@ const years = Array.from({ length: 35 }, (_, i) => String(new Date().getFullYear
 export default function MotorQuoteWizard() {
   const [brand, setBrand] = useState("");
   const [model, setModel] = useState("");
+  const [customBrand, setCustomBrand] = useState("");
+  const [customModel, setCustomModel] = useState("");
   const [year, setYear] = useState("");
   const [variant, setVariant] = useState("");
   const [mileage, setMileage] = useState("");
@@ -35,8 +79,8 @@ export default function MotorQuoteWizard() {
   const [step, setStep] = useState(0);
   const [payment, setPayment] = useState("รายปี");
   const models = useMemo(() => carBrands[brand] ?? [], [brand]);
-  const complete = Boolean(brand && model && year && variant.trim() && mileage && usage && claims);
-  const summary = [`ยี่ห้อ: ${brand}`, `รุ่น: ${model}`, `ปี: ${year}`, `รุ่นย่อย/เครื่องยนต์: ${variant}`, `เลขไมล์: ${mileage}`, `การใช้งาน: ${usage}`, `เคลม 12 เดือน: ${claims} ครั้ง`, `แผนที่สนใจ: ${coverage}`, `รูปแบบชำระที่สนใจ: ${payment}`].join("\n");
+  const complete = Boolean(brand && (brand !== "Other" || customBrand.trim()) && model && (model !== OTHER_MODEL || customModel.trim()) && year && variant.trim() && mileage && usage && claims);
+  const summary = [`ยี่ห้อ: ${brand === "Other" ? customBrand.trim() : brand}`, `รุ่น: ${model === OTHER_MODEL ? customModel.trim() : model}`, `ปี: ${year}`, `รุ่นย่อย/เครื่องยนต์: ${variant}`, `เลขไมล์: ${mileage}`, `การใช้งาน: ${usage}`, `เคลม 12 เดือน: ${claims} ครั้ง`, `แผนที่สนใจ: ${coverage}`, `รูปแบบชำระที่สนใจ: ${payment}`].join("\n");
   const quoteUrl = "/quote?" + new URLSearchParams({ insurance_type: "ประกันรถยนต์", motor_details: summary }).toString();
   return (
     <main className="motor-wizard" style={{ maxWidth: 860, margin: "0 auto", padding: "36px 18px 80px", color: "#164d91", lineHeight: 1.6 }}>
@@ -50,15 +94,17 @@ export default function MotorQuoteWizard() {
       <form onSubmit={e => { e.preventDefault(); if (complete) setSubmitted(true); }} style={{ display: "grid", gap: 20 }}>
         {step===0 && <fieldset style={fieldStyle}><legend>1. รายละเอียดรถ</legend>
           <label style={labelStyle}>ยี่ห้อรถ
-            <select style={inputStyle} required value={brand} onChange={e => { setBrand(e.target.value); setModel(""); setSubmitted(false); }}>
+            <select style={inputStyle} required value={brand} onChange={e => { setBrand(e.target.value); setModel(""); setCustomBrand(""); setCustomModel(""); setSubmitted(false); }}>
               <option value="">เลือกยี่ห้อรถ</option>{Object.keys(carBrands).map(x => <option key={x} value={x}>{x === "Other" ? "ยี่ห้ออื่น ๆ" : x}</option>)}
             </select>
           </label>
+          {brand === "Other" && <label style={labelStyle}>ระบุยี่ห้อรถ<input style={inputStyle} value={customBrand} maxLength={70} required onChange={e=>setCustomBrand(e.target.value)} placeholder="พิมพ์ยี่ห้อรถ" /></label>}
           <label style={labelStyle}>รุ่นรถ
-            <select style={inputStyle} required value={model} disabled={!brand} onChange={e => { setModel(e.target.value); setSubmitted(false); }}>
-              <option value="">เลือกรุ่นรถ</option>{models.map(x => <option key={x}>{x}</option>)}
+            <select style={inputStyle} required value={model} disabled={!brand} onChange={e => { setModel(e.target.value); setCustomModel(""); setSubmitted(false); }}>
+              <option value="">เลือกรุ่นรถ</option>{models.map(x => <option key={x}>{x}</option>)}<option value={OTHER_MODEL}>{OTHER_MODEL}</option>
             </select>
           </label>
+          {model === OTHER_MODEL && <label style={labelStyle}>ระบุรุ่นรถ<input style={inputStyle} value={customModel} maxLength={90} required onChange={e=>setCustomModel(e.target.value)} placeholder="พิมพ์ชื่อรุ่นที่ไม่มีในรายการ" /></label>}
           <label style={labelStyle}>ปีรถ
             <select style={inputStyle} required value={year} onChange={e => { setYear(e.target.value); setSubmitted(false); }}>
               <option value="">เลือกปีรถ</option>{years.map(x => <option key={x}>{x}</option>)}
