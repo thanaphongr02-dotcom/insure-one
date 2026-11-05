@@ -1,4 +1,5 @@
 import FeaturedPromotions from "./FeaturedPromotions";
+import HeroCarousel from "./HeroCarousel";
 
 const categories = [
   { icon: "🚘", title: "ประกันรถยนต์", desc: "รถยนต์และรถจักรยานยนต์" },
@@ -19,31 +20,21 @@ export default function Home() {
       <div className="account-actions"><a className="login" href="/login">เข้าสู่ระบบ</a><a className="button button-small" href="/register">สมัครสมาชิก</a></div>
     </header>
 
-    <section className="storefront-hero" aria-label="เลือกประกันให้เหมาะกับชีวิต">
-      <div className="storefront-hero-inner">
-        <div className="storefront-hero-copy">
-          <span className="storefront-kicker">✦ INSURE ONE · YOUR COVER, YOUR CHOICE</span>
-          <h1>ประกันครบ <span>จบในที่เดียว</span></h1>
-          <p className="storefront-lead">ค้นหาแผนประกันหลากหลายประเภท เปรียบเทียบข้อมูลจากแหล่งที่ตรวจสอบได้ และขอใบเสนอราคาที่เหมาะกับคุณ</p>
-          <div className="storefront-checks"><span>✓ หลากหลายประเภท</span><span>✓ เปรียบเทียบง่าย</span><span>✓ มีเจ้าหน้าที่ช่วยดูแล</span></div>
-          <div className="storefront-hero-buttons"><a className="storefront-primary-cta" href="#products">ค้นหาแผนประกันเลย <span>→</span></a><a className="storefront-outline-cta" href="/products">เปรียบเทียบแผน ↗</a></div>
-          <p className="storefront-fineprint">การซื้อและราคาจริงขึ้นอยู่กับเงื่อนไขและการยืนยันจากบริษัทประกัน</p>
-        </div>
-        <div className="storefront-hero-visual" aria-label="ภาพประกอบครอบครัว บ้าน รถยนต์ และการดูแลสุขภาพ">
-          <div className="storefront-photo storefront-photo-family" role="img" aria-label="ครอบครัวอบอุ่น"></div>
-          <div className="storefront-photo storefront-photo-home" role="img" aria-label="บ้านพักอาศัย"></div>
-          <div className="storefront-photo storefront-photo-car" role="img" aria-label="รถยนต์"></div>
-          <div className="storefront-hero-shield" aria-hidden="true">✓</div>
-          <div className="storefront-visual-badge">🛡️ <span>เลือกความคุ้มครอง<br/><b>ให้เหมาะกับชีวิตคุณ</b></span></div>
-        </div>
-      </div>
-    </section>
+    <HeroCarousel />
 
     <section className="storefront-category-wrap" id="products" aria-labelledby="category-title">
       <div className="storefront-category-heading"><span className="eyebrow">EXPLORE INSURANCE</span><h2 id="category-title">เลือกประกันที่ใช่สำหรับคุณ</h2><p>เริ่มต้นจากประเภทที่สนใจ</p></div>
       <div className="storefront-category-strip">{categories.map(c => <a key={c.title} href={`/products?category=${encodeURIComponent(c.title)}`} className="storefront-category-tile"><span className="storefront-category-emoji" aria-hidden="true">{c.icon}</span><strong>{c.title}</strong><small>{c.desc}</small></a>)}</div>
     </section>
 
+    <section className="storefront-campaigns section" aria-label="ค้นหาความคุ้มครองตามไลฟ์สไตล์">
+      <div className="section-heading"><div><span className="eyebrow">HANDPICKED FOR YOU</span><h2>สิทธิประโยชน์และแผนที่คุณอาจสนใจ</h2></div><p>เลือกดูประเภทความคุ้มครองก่อนตรวจสอบข้อเสนอจริง</p></div>
+      <div className="storefront-campaign-grid">
+        <a className="storefront-campaign-card campaign-auto" href="/products?category=ประกันรถยนต์"><span className="campaign-label">แนะนำให้สำรวจ</span><h3>ประกันรถยนต์<br/>เลือกความคุ้มครองให้ตรงใจ</h3><p>เปรียบเทียบข้อมูลแผนและเงื่อนไข</p><strong>ดูแผนรถยนต์ →</strong></a>
+        <a className="storefront-campaign-card campaign-health" href="/products?category=ประกันสุขภาพ"><span className="campaign-label">ดูแลสุขภาพ</span><h3>สุขภาพที่ดี<br/>เริ่มจากการวางแผน</h3><p>ค้นหาตัวเลือกค่ารักษาพยาบาล</p><strong>ดูแผนสุขภาพ →</strong></a>
+        <a className="storefront-campaign-card campaign-travel" href="/products?category=ประกันเดินทาง"><span className="campaign-label">สำหรับนักเดินทาง</span><h3>พร้อมออกเดินทาง<br/>อย่างมั่นใจ</h3><p>สำรวจความคุ้มครองก่อนทริป</p><strong>ดูแผนเดินทาง →</strong></a>
+      </div>
+    </section>
     <FeaturedPromotions />
 
     <section className="storefront-feature-grid section" aria-label="บริการของเรา">
