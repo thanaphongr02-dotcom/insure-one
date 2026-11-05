@@ -114,4 +114,7 @@ function QuoteRequestForm() {
     </div>
   </main>;
 }
-\nexport default function QuoteRequestPage() {\n  return <Suspense fallback={<main style={{ padding: 32 }}>กำลังโหลดแบบฟอร์ม...</main>}><QuoteRequestForm /></Suspense>;\n}\n
+
+export default function QuoteRequestPage() {
+  return <Suspense fallback={<main style={{ padding: 32 }}>กำลังโหลดแบบฟอร์ม...</main>}><QuoteRequestForm /></Suspense>;
+}
