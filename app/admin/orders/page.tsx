@@ -43,7 +43,7 @@ const allowedNext: Record<string, string[]> = {
   awaiting_payment_channel: ["awaiting_payment_confirmation", "cancelled"],
   awaiting_payment_confirmation: ["cancelled"], // Payment confirmation requires verified server integration.
   payment_confirmed: ["awaiting_policy"],
-  awaiting_policy: ["policy_issued"],
+  awaiting_policy: [], // Issuance requires verified insurer workflow.
   policy_issued: [],
   cancelled: [],
 };
@@ -143,6 +143,10 @@ export default function AdminOrdersPage() {
     // UI safety gate only. Database privileges must also be hardened before launch.
     if (order.status === "awaiting_payment_confirmation" && d.status === "payment_confirmed") {
       setError("ยังไม่เปิดให้ยืนยันการชำระเงินผ่านหน้า Admin ต้องเชื่อมระบบตรวจสอบการชำระเงินฝั่งเซิร์ฟเวอร์ก่อน");
+      return;
+    }
+    if (order.status === "awaiting_policy" && d.status === "policy_issued") {
+      setError("ยังไม่เปิดให้ระบุว่าออกกรมธรรม์แล้วจากหน้า Admin ต้องตรวจสอบการออกกรมธรรม์กับบริษัทประกันผ่านขั้นตอนฝั่งเซิร์ฟเวอร์ก่อน");
       return;
     }
     if (d.status !== order.status && !(allowedNext[order.status] ?? []).includes(d.status)) {
