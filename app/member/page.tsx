@@ -187,6 +187,8 @@ export default function MemberPage() {
             ยินดีต้อนรับสู่พื้นที่สมาชิก INSURE ONE
             จัดการข้อมูลและบริการประกันของคุณได้ในที่เดียว
           </p>
+          <div className="member-hero-actions"><Link href="/quote" className="member-hero-primary">ขอคำปรึกษา / ใบเสนอราคา →</Link><Link href="/products" className="member-hero-secondary">สำรวจประเภทประกัน</Link></div>
+          <div className="member-hero-note">ติดตามคำขอได้จากบัญชีของคุณ · ไม่มีการเรียกเก็บเงินผ่านหน้านี้</div>
         </section>
 
         <section className="member-overview">
