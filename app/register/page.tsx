@@ -22,6 +22,11 @@ export default function RegisterPage() {
       return;
     }
 
+    if (!/^0[0-9]{9}$/.test(phone.replace(/[\s-]/g, ""))) {
+      setMessage("กรุณากรอกเบอร์โทรศัพท์ไทย 10 หลักให้ถูกต้อง");
+      return;
+    }
+
     if (!acknowledged) {
       setMessage("กรุณาอ่านและรับทราบข้อมูลส่วนบุคคลก่อนสมัครสมาชิก");
       return;
@@ -41,7 +46,7 @@ export default function RegisterPage() {
         options: {
           data: {
             full_name: name.trim(),
-            phone: phone.trim(),
+            phone: phone.replace(/[\s-]/g, ""),
           },
           emailRedirectTo: `${window.location.origin}/login`,
         },
