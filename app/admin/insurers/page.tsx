@@ -19,6 +19,7 @@ export default function InsurerPartnershipsAdminPage(){
  const [saving,setSaving]=useState<string|null>(null);
  const [search,setSearch]=useState("");
  const [isAdmin,setIsAdmin]=useState(false);
+ const [loadFailed,setLoadFailed]=useState(false);
  useEffect(()=>{let active=true;(async()=>{
   const {data:{user},error:authError}=await supabase.auth.getUser();
   if(!active)return;
@@ -29,7 +30,7 @@ export default function InsurerPartnershipsAdminPage(){
   setIsAdmin(true);
   const {data,error:readError}=await supabase.from("insurer_partnerships").select("id,supplied_name,verified_legal_name,regulatory_status,contract_status,appointment_verified,api_access_approved,commission_agreement_verified,notes").order("id");
   if(!active)return;
-  if(readError)setError("ไม่สามารถโหลดทะเบียนบริษัทได้: "+readError.message);
+  if(readError){setLoadFailed(true);setError("ไม่สามารถโหลดทะเบียนบริษัทได้: "+readError.message);}
   else setRows((data||[]) as Prospect[]);
   setLoading(false);
  })();return()=>{active=false};},[]);
@@ -47,10 +48,10 @@ export default function InsurerPartnershipsAdminPage(){
   <h1>INSURE ONE · ติดตามบริษัทคู่ค้า</h1>
   <p>ทะเบียนภายในเท่านั้น — รายชื่อยังไม่ยืนยันสถานะทางกฎหมายหรือสิทธิ์จำหน่าย ห้ามนำไปแสดงเป็นบริษัทพันธมิตรที่ได้รับอนุญาต</p>
   {loading?<p>กำลังตรวจสอบสิทธิ์...</p>:error&&!isAdmin?<p role="alert">{error}</p>:<>
-   <p>ทั้งหมด {rows.length} บริษัท · ลงนามตามฐานข้อมูล {rows.filter(x=>x.contract_status==="signed").length} บริษัท · API อนุมัติ {rows.filter(x=>x.api_access_approved).length} บริษัท</p>
+   {!loadFailed&&<p>ทั้งหมด {rows.length} บริษัท · ลงนามตามฐานข้อมูล {rows.filter(x=>x.contract_status==="signed").length} บริษัท · API อนุมัติ {rows.filter(x=>x.api_access_approved).length} บริษัท</p>}
    <input aria-label="ค้นหาบริษัท" placeholder="ค้นหาบริษัท" value={search} onChange={e=>setSearch(e.target.value)} style={{padding:10,maxWidth:"100%",width:340}}/>
    {error&&<p role="alert" style={{color:"#b42318"}}>{error}</p>}
-   <div style={{overflowX:"auto",marginTop:16}}><table style={{width:"100%",borderCollapse:"collapse",textAlign:"left"}}>
+   {!loadFailed&&<div style={{overflowX:"auto",marginTop:16}}><table style={{width:"100%",borderCollapse:"collapse",textAlign:"left"}}>
     <thead><tr><th>บริษัท (ชื่อที่แจ้ง)</th><th>สถานะสัญญา</th><th>ตรวจสอบนิติบุคคล</th><th>สิทธิ์ตัวแทน</th><th>API</th></tr></thead>
     <tbody>{filtered.map(x=><tr key={x.id} style={{borderTop:"1px solid #ddd"}}>
      <td style={{padding:10}}>{x.supplied_name}</td>
@@ -61,7 +62,7 @@ export default function InsurerPartnershipsAdminPage(){
      <td>{x.appointment_verified?"ตรวจสอบแล้ว":"ยังไม่ยืนยัน"}</td>
      <td>{x.api_access_approved?"อนุมัติ":"ยังไม่อนุมัติ"}</td>
     </tr>)}</tbody>
-   </table></div>
+   </table></div>}
    <p>การยืนยันสัญญา สิทธิ์ตัวแทน และ API ต้องผ่านการตรวจสอบเอกสารและกระบวนการอนุมัติแยกต่างหาก</p>
   </>}
  </main>;
