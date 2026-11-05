@@ -157,7 +157,7 @@ export default function AdminPage() {
       timeZone: "Asia/Bangkok", year: "numeric", month: "2-digit", day: "2-digit",
     }).format(new Date());
     if (form.valid_until < today) { setMessage("วันหมดอายุใบเสนอราคาต้องไม่เป็นวันที่ผ่านมาแล้ว"); return; }
-    if (publish && !window.confirm("ยืนยันว่าราคาและเงื่อนไขนี้ได้รับการตรวจสอบแล้ว และต้องการส่งให้สมาชิกเห็น?")) return;
+    if (publish) { setMessage("ยังไม่อนุญาตให้ส่งใบเสนอราคาในนามบริษัทประกันจนกว่าจะตรวจสอบสัญญา สิทธิ์จำหน่าย และแหล่งราคาในระบบที่เชื่อถือได้ กรุณาบันทึกฉบับร่างเท่านั้น"); return; }
     const existing = offers[quoteId];
     if (existing && ["accepted", "declined", "expired"].includes(existing.status)) {
       setMessage("ใบเสนอราคาที่ตอบรับ ปฏิเสธ หรือหมดอายุแล้วไม่ควรแก้ไข โปรดสร้างขั้นตอนออกข้อเสนอใหม่ในภายหลัง");
@@ -206,7 +206,7 @@ export default function AdminPage() {
       <Link href="/member">← กลับหน้าสมาชิก</Link>
       <h1>INSURE ONE | Admin Dashboard</h1>
       <p style={{ color: "#64748b" }}>จัดการคำขอและสร้างใบเสนอราคาสำหรับสมาชิก</p>
-      <Link href="/admin/prices" style={{ color: "#1764b3", fontWeight: 600 }}>จัดการราคาและโปรโมชั่น →</Link>
+      <Link href="/admin/prices" style={{ color: "#1764b3", fontWeight: 600 }}>จัดการราคาและโปรโมชั่น →</Link>{" · "}<Link href="/admin/insurers" style={{ color: "#1764b3", fontWeight: 600 }}>ติดตามสัญญาบริษัทประกัน →</Link>
     </header>
     <section style={{ background: "linear-gradient(120deg, #102d50, #2563a6)", color: "white", borderRadius: 18, padding: 28, marginBottom: 24 }}>
       <p style={{ margin: 0 }}>ภาพรวมคำขอใบเสนอราคา</p>
