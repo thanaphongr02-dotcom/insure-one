@@ -1,21 +1,14 @@
 import { NextResponse } from "next/server";
-import { prospectiveInsurers } from "@/lib/insurance/prospective-insurers";
-import { canRequestLiveQuote } from "@/lib/insurance/integrations";
 
 /**
- * Public discovery endpoint contains no private contract notes or credentials.
- * An unverified prospect is NOT a sales partner.
+ * Public API must not advertise uncontracted prospect insurers as partners.
+ * Prospect tracking is available only through the admin-only database RLS.
  */
 export async function GET() {
   return NextResponse.json({
-    integrationMode: "prospect_only",
+    integrationMode: "not_connected",
     liveQuotesAvailable: false,
-    insurers: prospectiveInsurers.map(x => ({
-      id: x.insurerId,
-      suppliedName: x.legalName,
-      relationship: "prospective_unverified",
-      liveQuoteEnabled: canRequestLiveQuote(x),
-      onlineCheckoutEnabled: false,
-    })),
+    insurers: [],
+    message: "ยังไม่มีบริษัทประกันที่ได้รับอนุมัติให้เชื่อมต่อ API หรือจำหน่ายผ่าน INSURE ONE",
   }, { headers: { "Cache-Control": "no-store" } });
 }
