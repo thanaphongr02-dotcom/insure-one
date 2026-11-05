@@ -44,7 +44,7 @@ function QuoteRequestForm() {
       try {
         const { data, error } = await supabase.auth.getUser();
         if (!active) return;
-        if (error || !data.user) { router.replace("/login"); return; }
+        if (error || !data.user) { router.replace(`/login?next=${encodeURIComponent(`/quote${window.location.search}`)}`); return; }
         setUserId(data.user.id);
         setName(typeof data.user.user_metadata?.full_name === "string" ? data.user.user_metadata.full_name : "");
         setContact(typeof data.user.user_metadata?.phone === "string" ? data.user.user_metadata.phone : "");
