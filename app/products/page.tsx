@@ -105,6 +105,33 @@ function ProductsContent() {
             เปรียบเทียบข้อมูลเบื้องต้นและส่งคำขอใบเสนอราคาเพื่อรับข้อเสนอที่เหมาะกับคุณ
           </p>
         </header>
+        <section className="insurance-category-guide" aria-label="เลือกประเภทประกันที่สนใจ">
+          <div className="insurance-category-heading"><h2>เลือกประกันที่คุณต้องการ</h2><p>กดเลือกประเภทเพื่อดูแผนที่เผยแพร่แล้ว หรือส่งข้อมูลให้เจ้าหน้าที่ช่วยค้นหาข้อเสนอที่เหมาะสม</p></div>
+          <div className="insurance-category-grid">
+            {[
+              { name: "ประกันรถยนต์", icon: "🚗", detail: "ชั้น 1 · 2+ · 3+ · พ.ร.บ." },
+              { name: "ประกันสุขภาพ", icon: "💙", detail: "ค่ารักษาพยาบาลและความคุ้มครองสุขภาพ" },
+              { name: "ประกันชีวิต", icon: "🛡️", detail: "วางแผนดูแลคนที่คุณรัก" },
+              { name: "ประกันอุบัติเหตุ", icon: "🩹", detail: "คุ้มครองอุบัติเหตุที่ไม่คาดคิด" },
+              { name: "ประกันเดินทาง", icon: "✈️", detail: "ท่องเที่ยวในประเทศและต่างประเทศ" },
+              { name: "ประกันบ้านและทรัพย์สิน", icon: "🏡", detail: "ดูแลบ้านและทรัพย์สิน" },
+              { name: "ประกันการเกษตร", icon: "🌾", detail: "ความเสี่ยงด้านการเกษตร" },
+              { name: "ประกันธุรกิจ", icon: "🏢", detail: "ความเสี่ยงในการดำเนินธุรกิจ" },
+            ].map(item => {
+              const count = plans.filter(p => p.insurance_type === item.name).length;
+              return <article key={item.name} className="insurance-category-card">
+                <div className="insurance-category-icon" aria-hidden="true">{item.icon}</div>
+                <h3>{item.name}</h3><p>{item.detail}</p>
+                <small>{count ? `มีแผนเผยแพร่ ${count} แผน` : "รับคำขอให้เจ้าหน้าที่ตรวจสอบราคา"}</small>
+                <div className="insurance-category-actions">
+                  <button type="button" onClick={() => { setCategory(item.name); setSearch(""); setCompanyFilter("all"); setPriceFilter("all"); document.getElementById("insurance-plan-results")?.scrollIntoView({ behavior: "smooth" }); }}>ดูแผน</button>
+                  <Link href={item.name === "ประกันรถยนต์" ? "/motor-quote" : `/quote?insurance_type=${encodeURIComponent(item.name)}`}>{item.name === "ประกันรถยนต์" ? "กรอกข้อมูลรถ" : "ขอราคา"}</Link>
+                </div>
+              </article>;
+            })}
+          </div>
+          <p className="insurance-category-note">ราคาและโปรโมชั่นจะแสดงเฉพาะแผนที่มีแหล่งข้อมูลตรวจสอบได้และยังไม่หมดอายุ ไม่มีการสมมติราคาเบี้ยหรือส่วนลด</p>
+        </section>
         <section className="products-filters" aria-label="ค้นหาและกรองแผนประกัน" style={{ display: "flex", gap: 12, flexWrap: "wrap", background: "white", borderRadius: 16, padding: 18, marginBottom: 24, border: "1px solid #dce6f1" }}>
           <label style={{ flex: "2 1 240px", fontSize: 13, fontWeight: 600 }}>ค้นหาแผนประกัน
             <input type="search" value={search} onChange={e => setSearch(e.target.value)} placeholder="ชื่อแผน บริษัท หรือความคุ้มครอง" style={{ display: "block", width: "100%", padding: 12, borderRadius: 10, border: "1px solid #cbd5e1", marginTop: 6 }} />
@@ -146,6 +173,7 @@ function ProductsContent() {
           <p style={{ fontSize: 13, color: "#64748b" }}>ข้อมูลสำหรับเปรียบเทียบเบื้องต้น ไม่ใช่การเสนอขายหรือยืนยันรับประกันภัย โปรดตรวจสอบเงื่อนไขฉบับเต็มกับบริษัทประกัน</p>
           <button type="button" onClick={() => setSelectedIds([])} style={{ border: "1px solid #cbd5e1", padding: "9px 16px", borderRadius: 8, background: "white", cursor: "pointer" }}>ล้างรายการเปรียบเทียบ</button>
         </section>}
+        <div id="insurance-plan-results" />
         {!loading && !errorMessage && <p aria-live="polite" style={{ color: "#64748b" }}>พบ {visiblePlans.length} แผนประกัน</p>}
         {errorMessage && <div role="alert" style={{ background: "#fff1f2", border: "1px solid #fecdd3", padding: 16, borderRadius: 12, marginBottom: 20 }}>โหลดแผนประกันไม่สำเร็จ: {errorMessage}</div>}
         {!errorMessage && plans.length === 0 && (
