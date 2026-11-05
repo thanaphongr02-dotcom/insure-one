@@ -48,6 +48,15 @@ function ProductsContent() {
   const [category, setCategory] = useState(() => searchParams.get("category") || "all");
   useEffect(() => { setCategory(searchParams.get("category") || "all"); }, [searchParams]);
   const [sort, setSort] = useState("newest");
+  const [companyFilter, setCompanyFilter] = useState("all");
+  const [priceFilter, setPriceFilter] = useState("all");
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const companies = Array.from(new Set(plans.map(p => p.insurance_companies?.name).filter((x): x is string => Boolean(x)))).sort((a,b) => a.localeCompare(b, "th"));
+  const priceVerified = (p: Plan) => typeof p.premium_amount === "number" && Number.isFinite(p.premium_amount) && p.premium_amount > 0 && !!p.price_period && !!p.price_source_url && !!p.price_verified_at && !!p.price_valid_until && p.price_valid_until >= bangkokToday();
+  const selectedPlans = plans.filter(p => selectedIds.includes(p.id));
+  function toggleCompare(id: string) {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : prev.length < 3 ? [...prev, id] : prev);
+  }
 
   useEffect(() => {
     let active = true;
@@ -74,7 +83,7 @@ function ProductsContent() {
 
   const today = bangkokToday();
   const categories = Array.from(new Set(plans.map(p => p.insurance_type))).sort();
-  const visiblePlans = plans.filter(p => (category === "all" || p.insurance_type === category) && [p.plan_name, p.insurance_type, p.insurance_companies?.name ?? "", p.coverage_summary ?? ""].some(value => value.toLocaleLowerCase("th-TH").includes(search.trim().toLocaleLowerCase("th-TH"))));
+  const visiblePlans = plans.filter(p => (category === "all" || p.insurance_type === category) && (companyFilter === "all" || p.insurance_companies?.name === companyFilter) && (priceFilter === "all" || (priceFilter === "verified" ? priceVerified(p) : !priceVerified(p))) && [p.plan_name, p.insurance_type, p.insurance_companies?.name ?? "", p.coverage_summary ?? ""].some(value => value.toLocaleLowerCase("th-TH").includes(search.trim().toLocaleLowerCase("th-TH"))));
   if (sort === "company") visiblePlans.sort((a,b) => (a.insurance_companies?.name ?? "").localeCompare(b.insurance_companies?.name ?? "", "th"));
   if (sort === "name") visiblePlans.sort((a,b) => a.plan_name.localeCompare(b.plan_name, "th"));
   const cardStyle: React.CSSProperties = {
@@ -104,12 +113,38 @@ function ProductsContent() {
               <option value="all">ทุกประเภท</option>{categories.map(value => <option key={value} value={value}>{value}</option>)}
             </select>
           </label>
+          <label style={{ flex: "1 1 180px", fontSize: 13, fontWeight: 600 }}>บริษัทประกัน
+            <select value={companyFilter} onChange={e => setCompanyFilter(e.target.value)} style={{ display: "block", width: "100%", padding: 12, borderRadius: 10, border: "1px solid #cbd5e1", marginTop: 6 }}>
+              <option value="all">ทุกบริษัท</option>{companies.map(name => <option key={name} value={name}>{name}</option>)}
+            </select>
+          </label>
+          <label style={{ flex: "1 1 180px", fontSize: 13, fontWeight: 600 }}>สถานะราคา
+            <select value={priceFilter} onChange={e => setPriceFilter(e.target.value)} style={{ display: "block", width: "100%", padding: 12, borderRadius: 10, border: "1px solid #cbd5e1", marginTop: 6 }}>
+              <option value="all">ทั้งหมด</option><option value="verified">มีราคาอ้างอิงที่ยังไม่หมดอายุ</option><option value="quote">ต้องสอบถามราคา</option>
+            </select>
+          </label>
           <label style={{ flex: "1 1 150px", fontSize: 13, fontWeight: 600 }}>เรียงตาม
             <select value={sort} onChange={e => setSort(e.target.value)} style={{ display: "block", width: "100%", padding: 12, borderRadius: 10, border: "1px solid #cbd5e1", marginTop: 6 }}>
               <option value="newest">ล่าสุด</option><option value="company">ชื่อบริษัท</option><option value="name">ชื่อแผน</option>
             </select>
           </label>
         </section>
+        {selectedPlans.length > 0 && <section aria-label="เปรียบเทียบแผนที่เลือก" style={{ background: "white", border: "1px solid #cbd5e1", borderRadius: 16, padding: 18, marginBottom: 22 }}>
+          <h2>เปรียบเทียบแผนที่เลือก ({selectedPlans.length}/3)</h2>
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 480 }}>
+              <thead><tr><th style={{ textAlign: "left", padding: 10 }}>บริษัท / แผน</th><th style={{ textAlign: "left", padding: 10 }}>ประเภท</th><th style={{ textAlign: "left", padding: 10 }}>เบี้ยอ้างอิง</th><th style={{ textAlign: "left", padding: 10 }}>ความคุ้มครอง</th></tr></thead>
+              <tbody>{selectedPlans.map(p => <tr key={p.id} style={{ borderTop: "1px solid #e2e8f0" }}>
+                <td style={{ padding: 10 }}>{p.insurance_companies?.name ?? "ไม่ระบุบริษัท"}<div>{p.plan_name}</div></td>
+                <td style={{ padding: 10 }}>{p.insurance_type}</td>
+                <td style={{ padding: 10 }}>{priceVerified(p) ? `฿${formatMoney(p.premium_amount!)} / ${p.price_period}` : "สอบถามราคา"}</td>
+                <td style={{ padding: 10 }}>{p.coverage_summary || "สอบถามรายละเอียด"}</td>
+              </tr>)}</tbody>
+            </table>
+          </div>
+          <p style={{ fontSize: 13, color: "#64748b" }}>ข้อมูลสำหรับเปรียบเทียบเบื้องต้น ไม่ใช่การเสนอขายหรือยืนยันรับประกันภัย โปรดตรวจสอบเงื่อนไขฉบับเต็มกับบริษัทประกัน</p>
+          <button type="button" onClick={() => setSelectedIds([])} style={{ border: "1px solid #cbd5e1", padding: "9px 16px", borderRadius: 8, background: "white", cursor: "pointer" }}>ล้างรายการเปรียบเทียบ</button>
+        </section>}
         {!loading && !errorMessage && <p aria-live="polite" style={{ color: "#64748b" }}>พบ {visiblePlans.length} แผนประกัน</p>}
         {errorMessage && <div role="alert" style={{ background: "#fff1f2", border: "1px solid #fecdd3", padding: 16, borderRadius: 12, marginBottom: 20 }}>โหลดแผนประกันไม่สำเร็จ: {errorMessage}</div>}
         {!errorMessage && plans.length === 0 && <p>ยังไม่มีแผนประกันที่เผยแพร่ในระบบ</p>}
@@ -173,6 +208,10 @@ function ProductsContent() {
                     </>
                   )}
                 </div>
+                <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14, cursor: "pointer" }}>
+                  <input type="checkbox" checked={selectedIds.includes(plan.id)} disabled={!selectedIds.includes(plan.id) && selectedIds.length >= 3} onChange={() => toggleCompare(plan.id)} />
+                  เพิ่มลงตารางเปรียบเทียบ (สูงสุด 3 แผน)
+                </label>
                 <Link href={`/quote?${params.toString()}`} style={{ display: "block", textAlign: "center", background: "#1764b3", color: "white", padding: "13px 16px", borderRadius: 10, textDecoration: "none", fontWeight: 600 }}>ขอใบเสนอราคา</Link>
               </article>
             );
