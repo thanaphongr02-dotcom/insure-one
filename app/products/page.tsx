@@ -52,8 +52,9 @@ function ProductsContent() {
   const [sort, setSort] = useState("newest");
   const [companyFilter, setCompanyFilter] = useState("all");
   const [priceFilter, setPriceFilter] = useState("all");
+  const [advancedOpen, setAdvancedOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const companies = Array.from(new Set(plans.map(p => p.insurance_companies?.name).filter((x): x is string => Boolean(x)))).sort((a,b) => a.localeCompare(b, "th"));
+  const companies = Array.from(new Set([...plans.map(p => p.insurance_companies?.name), ...officialInsuranceProducts.map(p => p.company)].filter((x): x is string => Boolean(x)))).sort((a,b) => a.localeCompare(b, "th"));
   const priceVerified = (p: Plan) => typeof p.premium_amount === "number" && Number.isFinite(p.premium_amount) && p.premium_amount > 0 && !!p.price_period && !!p.price_source_url && !!p.price_verified_at && !!p.price_valid_until && p.price_valid_until >= bangkokToday();
   const selectedPlans = plans.filter(p => selectedIds.includes(p.id));
   function toggleCompare(id: string) {
@@ -135,37 +136,28 @@ function ProductsContent() {
         </section>
         <section className="official-catalog" aria-label="ผลิตภัณฑ์จากเว็บไซต์บริษัทประกัน">
           <div className="insurance-category-heading"><h2>รู้จักผลิตภัณฑ์จากเว็บไซต์บริษัทประกัน</h2><p>ข้อมูลเบื้องต้นอ้างอิงจากหน้าเว็บไซต์ทางการ ไม่ใช่การดึงราคาแบบเรียลไทม์ และไม่ใช่ข้อเสนอที่ได้รับอนุมัติให้จำหน่ายบน INSURE ONE</p></div>
-          <div className="official-catalog-grid">{officialInsuranceProducts.filter(p => (category === "all" || p.category === category) && [p.name,p.company,p.category].some(s => s.toLocaleLowerCase("th").includes(search.trim().toLocaleLowerCase("th")))).map(p => <article className="official-product-card" key={p.company+p.name}>
-            <div className="official-product-company">{p.company}</div><h3>{p.name}</h3><span className="official-product-category">{p.category}</span><p>{p.summary}</p>
+          <div className="official-catalog-grid">{officialInsuranceProducts.filter(p => (category === "all" || p.category === category) && (companyFilter === "all" || p.company === companyFilter) && (priceFilter !== "verified") && [p.name,p.company,p.category].some(s => s.toLocaleLowerCase("th").includes(search.trim().toLocaleLowerCase("th")))).map(p => <article className="official-product-card" key={p.company+p.name}>
+            <div className="official-product-company"><span className="company-identity" aria-hidden="true">{p.company.includes("ซัมซุง") ? "SAMSUNG LIFE" : "INDARA INSURANCE"}</span><span>{p.company}</span></div><h3>{p.name}</h3><span className="official-product-category">{p.category}</span><p>{p.summary}</p>
             {p.note && <p className="official-product-warning">{p.note}</p>}
             <div className="official-product-actions"><a href={p.source} target="_blank" rel="noopener noreferrer">อ่านข้อมูลจากบริษัท ↗</a><Link href={`/quote?insurance_type=${encodeURIComponent(p.category)}&plan=${encodeURIComponent(p.name)}&company=${encodeURIComponent(p.company)}`}>ขอให้ตรวจสอบราคา</Link></div>
           </article>)}</div>
           <p className="insurance-category-note">ราคาประกันขึ้นกับอายุ สุขภาพ รถยนต์ พื้นที่ ความคุ้มครอง และการรับประกันภัย โปรดตรวจสอบรายละเอียดล่าสุดจากบริษัทก่อนตัดสินใจ</p>
         </section>
-        <section className="products-filters" aria-label="ค้นหาและกรองแผนประกัน" style={{ display: "flex", gap: 12, flexWrap: "wrap", background: "white", borderRadius: 16, padding: 18, marginBottom: 24, border: "1px solid #dce6f1" }}>
-          <label style={{ flex: "2 1 240px", fontSize: 13, fontWeight: 600 }}>ค้นหาแผนประกัน
-            <input type="search" value={search} onChange={e => setSearch(e.target.value)} placeholder="ชื่อแผน บริษัท หรือความคุ้มครอง" style={{ display: "block", width: "100%", padding: 12, borderRadius: 10, border: "1px solid #cbd5e1", marginTop: 6 }} />
-          </label>
-          <label style={{ flex: "1 1 180px", fontSize: 13, fontWeight: 600 }}>ประเภทประกัน
-            <select value={category} onChange={e => setCategory(e.target.value)} style={{ display: "block", width: "100%", padding: 12, borderRadius: 10, border: "1px solid #cbd5e1", marginTop: 6 }}>
-              <option value="all">ทุกประเภท</option>{categories.map(value => <option key={value} value={value}>{value}</option>)}
-            </select>
-          </label>
-          <label style={{ flex: "1 1 180px", fontSize: 13, fontWeight: 600 }}>บริษัทประกัน
-            <select value={companyFilter} onChange={e => setCompanyFilter(e.target.value)} style={{ display: "block", width: "100%", padding: 12, borderRadius: 10, border: "1px solid #cbd5e1", marginTop: 6 }}>
-              <option value="all">ทุกบริษัท</option>{companies.map(name => <option key={name} value={name}>{name}</option>)}
-            </select>
-          </label>
-          <label style={{ flex: "1 1 180px", fontSize: 13, fontWeight: 600 }}>สถานะราคา
-            <select value={priceFilter} onChange={e => setPriceFilter(e.target.value)} style={{ display: "block", width: "100%", padding: 12, borderRadius: 10, border: "1px solid #cbd5e1", marginTop: 6 }}>
-              <option value="all">ทั้งหมด</option><option value="verified">มีราคาอ้างอิงที่ยังไม่หมดอายุ</option><option value="quote">ต้องสอบถามราคา</option>
-            </select>
-          </label>
-          <label style={{ flex: "1 1 150px", fontSize: 13, fontWeight: 600 }}>เรียงตาม
-            <select value={sort} onChange={e => setSort(e.target.value)} style={{ display: "block", width: "100%", padding: 12, borderRadius: 10, border: "1px solid #cbd5e1", marginTop: 6 }}>
-              <option value="newest">ล่าสุด</option><option value="company">ชื่อบริษัท</option><option value="name">ชื่อแผน</option>
-            </select>
-          </label>
+        <section className="simple-insurance-search" aria-label="ค้นหาประกันแบบง่าย">
+          <div className="simple-insurance-search-title"><h2>🔎 หาแผนประกันที่เหมาะกับคุณ</h2><p>เลือกประเภทด้านบน หรือพิมพ์ชื่อบริษัทหรือชื่อแผนที่ต้องการ</p></div>
+          <label className="simple-search-input"><span>ค้นหาประกัน</span><input type="search" value={search} onChange={e=>setSearch(e.target.value)} placeholder="เช่น ประกันรถยนต์, ซัมซุง, ชั้น 1..." /></label>
+          <div className="simple-search-bottom">
+            <p>{category === "all" ? "กำลังดูทุกประเภท" : `กำลังดู: ${category}`}{companyFilter !== "all" ? ` · ${companyFilter}` : ""}</p>
+            <button type="button" onClick={()=>{setSearch("");setCategory("all");setCompanyFilter("all");setPriceFilter("all");setSort("newest");}}>ล้างตัวเลือกทั้งหมด ↺</button>
+          </div>
+          <button type="button" className="advanced-filter-toggle" aria-expanded={advancedOpen} onClick={()=>setAdvancedOpen(!advancedOpen)}>{advancedOpen ? "ซ่อนตัวเลือกเพิ่มเติม ▲" : "กรองตามบริษัท ราคา และเรียงลำดับ ▼"}</button>
+          {advancedOpen && <div className="advanced-filter-grid">
+            <label>ประเภทประกัน<select value={category} onChange={e=>setCategory(e.target.value)}><option value="all">ทุกประเภท</option>{categories.map(x=><option key={x} value={x}>{x}</option>)}</select></label>
+            <label>บริษัทประกัน<select value={companyFilter} onChange={e=>setCompanyFilter(e.target.value)}><option value="all">ทุกบริษัทที่มีข้อมูล</option>{companies.map(x=><option key={x} value={x}>{x}</option>)}</select></label>
+            <label>ราคาเบี้ย<select value={priceFilter} onChange={e=>setPriceFilter(e.target.value)}><option value="all">แสดงทั้งหมด</option><option value="verified">มีราคาอ้างอิงที่ตรวจสอบได้</option><option value="quote">ยังไม่มีราคา ต้องสอบถาม</option></select></label>
+            <label>เรียงลำดับ<select value={sort} onChange={e=>setSort(e.target.value)}><option value="newest">เพิ่มเข้าระบบล่าสุด</option><option value="company">ตามชื่อบริษัท ก–ฮ</option><option value="name">ตามชื่อแผน ก–ฮ</option></select></label>
+            <p className="filter-help">ตัวเลือก “ราคาเบี้ย” ใช้กรองเฉพาะแผนที่มีข้อมูลราคาตรวจสอบได้ในระบบ ส่วนข้อมูลแผนจากเว็บไซต์บริษัทจะยังแสดงเป็น “สอบถามราคา”</p>
+          </div>}
         </section>
         {selectedPlans.length > 0 && <section aria-label="เปรียบเทียบแผนที่เลือก" style={{ background: "white", border: "1px solid #cbd5e1", borderRadius: 16, padding: 18, marginBottom: 22 }}>
           <h2>เปรียบเทียบแผนที่เลือก ({selectedPlans.length}/3)</h2>
