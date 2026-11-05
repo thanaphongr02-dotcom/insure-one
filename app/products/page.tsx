@@ -42,6 +42,9 @@ export default function ProductsPage() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("all");
+  const [sort, setSort] = useState("newest");
 
   useEffect(() => {
     let active = true;
@@ -67,6 +70,10 @@ export default function ProductsPage() {
   }, []);
 
   const today = bangkokToday();
+  const categories = Array.from(new Set(plans.map(p => p.insurance_type))).sort();
+  const visiblePlans = plans.filter(p => (category === "all" || p.insurance_type === category) && [p.plan_name, p.insurance_type, p.insurance_companies?.name ?? "", p.coverage_summary ?? ""].some(value => value.toLocaleLowerCase("th-TH").includes(search.trim().toLocaleLowerCase("th-TH"))));
+  if (sort === "company") visiblePlans.sort((a,b) => (a.insurance_companies?.name ?? "").localeCompare(b.insurance_companies?.name ?? "", "th"));
+  if (sort === "name") visiblePlans.sort((a,b) => a.plan_name.localeCompare(b.plan_name, "th"));
   const cardStyle: React.CSSProperties = {
     background: "#fff", border: "1px solid #e2e8f0", borderRadius: 18,
     padding: 24, boxShadow: "0 5px 20px rgba(0,0,0,0.04)",
@@ -85,10 +92,26 @@ export default function ProductsPage() {
             เปรียบเทียบข้อมูลเบื้องต้นและส่งคำขอใบเสนอราคาเพื่อรับข้อเสนอที่เหมาะกับคุณ
           </p>
         </header>
+        <section aria-label="ค้นหาและกรองแผนประกัน" style={{ display: "flex", gap: 12, flexWrap: "wrap", background: "white", borderRadius: 16, padding: 18, marginBottom: 24, border: "1px solid #dce6f1" }}>
+          <label style={{ flex: "2 1 240px", fontSize: 13, fontWeight: 600 }}>ค้นหาแผนประกัน
+            <input type="search" value={search} onChange={e => setSearch(e.target.value)} placeholder="ชื่อแผน บริษัท หรือความคุ้มครอง" style={{ display: "block", width: "100%", padding: 12, borderRadius: 10, border: "1px solid #cbd5e1", marginTop: 6 }} />
+          </label>
+          <label style={{ flex: "1 1 180px", fontSize: 13, fontWeight: 600 }}>ประเภทประกัน
+            <select value={category} onChange={e => setCategory(e.target.value)} style={{ display: "block", width: "100%", padding: 12, borderRadius: 10, border: "1px solid #cbd5e1", marginTop: 6 }}>
+              <option value="all">ทุกประเภท</option>{categories.map(value => <option key={value} value={value}>{value}</option>)}
+            </select>
+          </label>
+          <label style={{ flex: "1 1 150px", fontSize: 13, fontWeight: 600 }}>เรียงตาม
+            <select value={sort} onChange={e => setSort(e.target.value)} style={{ display: "block", width: "100%", padding: 12, borderRadius: 10, border: "1px solid #cbd5e1", marginTop: 6 }}>
+              <option value="newest">ล่าสุด</option><option value="company">ชื่อบริษัท</option><option value="name">ชื่อแผน</option>
+            </select>
+          </label>
+        </section>
+        {!loading && !errorMessage && <p aria-live="polite" style={{ color: "#64748b" }}>พบ {visiblePlans.length} แผนประกัน</p>}
         {errorMessage && <div role="alert" style={{ background: "#fff1f2", border: "1px solid #fecdd3", padding: 16, borderRadius: 12, marginBottom: 20 }}>โหลดแผนประกันไม่สำเร็จ: {errorMessage}</div>}
         {!errorMessage && plans.length === 0 && <p>ยังไม่มีแผนประกันที่เผยแพร่ในระบบ</p>}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20 }}>
-          {plans.map((plan) => {
+          {visiblePlans.map((plan) => {
             const company = plan.insurance_companies;
             const validPrice =
               typeof plan.premium_amount === "number" && Number.isFinite(plan.premium_amount) &&
@@ -152,6 +175,7 @@ export default function ProductsPage() {
             );
           })}
         </div>
+        {!errorMessage && plans.length > 0 && visiblePlans.length === 0 && <p>ไม่พบแผนที่ตรงกับคำค้นหา ลองเปลี่ยนคำค้นหาหรือเลือกทุกประเภท</p>}
         <p style={{ marginTop: 28, color: "#64748b", fontSize: 13, lineHeight: 1.8 }}>
           หมายเหตุ: ราคาและโปรโมชั่นที่แสดงเป็นข้อมูลอ้างอิง ไม่ใช่ข้อเสนอรับประกันภัยที่มีผลผูกพัน
           ยอดที่ต้องชำระจริงต้องได้รับการยืนยันจากบริษัทประกันหรือช่องทางที่ได้รับอนุญาตก่อนเสมอ
