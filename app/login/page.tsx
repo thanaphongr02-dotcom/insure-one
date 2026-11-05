@@ -35,7 +35,8 @@ export default function LoginPage() {
         return;
       }
 
-      window.location.href = "/member";
+      const next = new URLSearchParams(window.location.search).get("next");
+      window.location.href = next?.startsWith("/quote") ? next : "/member";
     } catch {
       setMessage("ไม่สามารถเชื่อมต่อระบบได้ กรุณาลองใหม่");
     } finally {
