@@ -45,9 +45,9 @@ const statusColors: Record<string, string> = {
 };
 function getQuoteDetails(details: string | null) {
   const value = details ?? "";
-  const company = value.match(/^บริษัทประกันที่สนใจ:\s*(.*)$/m)?.[1]?.trim() ?? "";
-  const plan = value.match(/^แผนประกันที่สนใจ:\s*(.*)$/m)?.[1]?.trim() ?? "";
-  const extra = value.match(/^รายละเอียดเพิ่มเติม:\s*([\s\S]*)$/m)?.[1]?.trim() ?? (!company && !plan ? value.trim() : "");
+  const company = value.match(/^(?:บริษัทประกันที่สนใจ|บริษัท):\s*(.*)$/m)?.[1]?.trim() ?? "";
+  const plan = value.match(/^(?:แผนประกันที่สนใจ|แผน):\s*(.*)$/m)?.[1]?.trim() ?? "";
+  const extra = value.split("\n").filter(line => !/^(?:บริษัทประกันที่สนใจ|บริษัท|แผนประกันที่สนใจ|แผน):\s*/.test(line)).join("\n").trim();
   return { company, plan, extra };
 }
 function blankForm(quote: Quote): OfferForm {
@@ -180,7 +180,7 @@ export default function AdminPage() {
       if (result.error) throw result.error;
       setOffers(previous => ({ ...previous, [quoteId]: result.data as Offer }));
       setEditingId(null); setForm(null);
-      setMessage(publish ? "ส่งใบเสนอราคาเรียบร้อยแล้ว (สมาชิกจะเห็นเมื่อเพิ่มหน้าแสดงข้อเสนอ)" : "บันทึกฉบับร่างเรียบร้อยแล้ว");
+      setMessage(publish ? "ส่งใบเสนอราคาเรียบร้อยแล้ว สมาชิกสามารถดูได้ในหน้ารายละเอียดคำขอ" : "บันทึกฉบับร่างเรียบร้อยแล้ว");
     } catch (error) {
       setMessage("บันทึกใบเสนอราคาไม่สำเร็จ: " + (error instanceof Error ? error.message : "โปรดลองใหม่"));
     } finally { setSavingId(null); }

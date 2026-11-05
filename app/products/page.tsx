@@ -109,7 +109,7 @@ export default function ProductsPage() {
                   ? basePrice * plan.discount_value! / 100 : plan.discount_value!)
               : 0;
             const finalPrice = basePrice === null ? null : Math.max(0, basePrice - discount);
-            const params = new URLSearchParams({ company: company?.name ?? "", plan: plan.plan_name });
+            const params = new URLSearchParams({ company: company?.name ?? "", plan: plan.plan_name, insurance_type: plan.insurance_type });
             return (
               <article key={plan.id} style={cardStyle}>
                 <div style={{ height: 90, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16, background: "#f8fafc", borderRadius: 12 }}>
