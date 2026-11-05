@@ -47,3 +47,21 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .motor-payment{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .motor-payment button.selected{background:#e6f2ff;border:2px solid #1265bf}
 @media(max-width:550px){.motor-steps button{font-size:12px;padding:10px 5px}.motor-payment{grid-template-columns:1fr}}
+
+/* Clear, touch-friendly insurance navigation */
+.insurance-category-guide{margin:22px 0 30px}
+.insurance-category-heading h2{font-size:clamp(23px,3vw,29px);color:#103c72;margin:0 0 6px}
+.insurance-category-heading p{color:#526a86;line-height:1.7;margin:0 0 20px}
+.insurance-category-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:16px}
+.insurance-category-card{display:flex;flex-direction:column;background:white;border:1px solid #dbe6f3;border-radius:20px;padding:22px;box-shadow:0 8px 25px #102b4e0a;transition:transform .18s ease,box-shadow .18s ease}
+.insurance-category-card:hover{transform:translateY(-3px);box-shadow:0 16px 34px #102b4e17}
+.insurance-category-icon{display:grid;place-items:center;width:62px;height:62px;border-radius:18px;background:linear-gradient(135deg,#e3f2ff,#f0f7ff);font-size:31px;margin-bottom:12px}
+.insurance-category-card h3{font-size:18px;margin:0 0 7px;color:#123d72}
+.insurance-category-card p{color:#60758c;font-size:13px;line-height:1.6;margin:0 0 12px;min-height:40px}
+.insurance-category-card small{color:#527092;font-size:12px;margin-bottom:16px}
+.insurance-category-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:auto}
+.insurance-category-actions button,.insurance-category-actions a{display:grid;place-items:center;min-height:46px;border-radius:11px;padding:9px 10px;font-weight:750;font-size:13px;cursor:pointer;text-decoration:none}
+.insurance-category-actions button{border:1px solid #c8d9ee;background:#f5f9ff;color:#1459a4}
+.insurance-category-actions a{border:1px solid #145da9;background:#145da9;color:white}
+.insurance-category-note{color:#65788d;font-size:12px;line-height:1.7;margin:14px 0 0}
+@media(prefers-reduced-motion:reduce){.insurance-category-card{transition:none}.insurance-category-card:hover{transform:none}}
