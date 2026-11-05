@@ -1,101 +1,58 @@
+import FeaturedPromotions from "./FeaturedPromotions";
+import HeroCarousel from "./HeroCarousel";
+import PlanFinder from "./PlanFinder";
+
 const categories = [
-  { icon: "🚗", title: "ประกันรถยนต์", desc: "ดูตัวเลือกความคุ้มครองรถยนต์" },
-  { icon: "❤️", title: "ประกันชีวิต", desc: "ค้นหาผลิตภัณฑ์ประกันชีวิต" },
-  { icon: "🏥", title: "ประกันสุขภาพ", desc: "ตรวจสอบแผนสุขภาพที่มีข้อมูลยืนยัน" },
-  { icon: "🛡️", title: "ประกันอุบัติเหตุ", desc: "ดูความคุ้มครองอุบัติเหตุ" },
-  { icon: "🏠", title: "ประกันบ้านและทรัพย์สิน", desc: "ตรวจสอบความคุ้มครองทรัพย์สิน" },
-  { icon: "✈️", title: "ประกันเดินทาง", desc: "ค้นหาความคุ้มครองระหว่างเดินทาง" },
-  { icon: "🌾", title: "ประกันการเกษตร", desc: "ตรวจสอบผลิตภัณฑ์ที่มีให้บริการ" },
-  { icon: "🏢", title: "ประกันธุรกิจ", desc: "ทางเลือกสำหรับกิจการและร้านค้า" },
+  { icon: "🚘", title: "ประกันรถยนต์", desc: "รถยนต์และรถจักรยานยนต์" },
+  { icon: "💗", title: "ประกันสุขภาพ", desc: "ค่ารักษาพยาบาล" },
+  { icon: "👨‍👩‍👧", title: "ประกันชีวิต", desc: "ดูแลคนที่คุณรัก" },
+  { icon: "🛡️", title: "ประกันอุบัติเหตุ", desc: "คุ้มครองเหตุไม่คาดฝัน" },
+  { icon: "🏡", title: "ประกันบ้านและทรัพย์สิน", desc: "บ้านและทรัพย์สิน" },
+  { icon: "✈️", title: "ประกันเดินทาง", desc: "เที่ยวอย่างอุ่นใจ" },
+  { icon: "🌱", title: "ประกันการเกษตร", desc: "พืชผลและฟาร์ม" },
+  { icon: "🏢", title: "ประกันธุรกิจ", desc: "กิจการและร้านค้า" },
+  { icon: "▦", title: "ดูทั้งหมด", desc: "ประกันทุกประเภท" },
 ];
 
 export default function Home() {
-  return (
-    <main>
-      <header className="topbar">
-        <a className="brand" href="/" aria-label="INSURE ONE หน้าแรก">
-          <span className="brand-mark">I</span>
-          <span>INSURE <b>ONE</b><small>ประกันครบ เลือกง่าย</small></span>
-        </a>
-        <nav>
-          <a href="#products">ผลิตภัณฑ์</a>
-          <a href="#how">วิธีใช้งาน</a>
-          <a href="#contact">ติดต่อเรา</a>
-        </nav>
-        <div className="account-actions">
-          <a className="login" href="/login">เข้าสู่ระบบ</a>
-          <a className="button button-small" href="/register">สมัครสมาชิก</a>
-        </div>
-      </header>
+  return <main className="storefront">
+    <div className="storefront-announcement"><span>✦ ค้นหาและเปรียบเทียบแผนประกันได้ในที่เดียว</span><a href="/products">สำรวจแผนทั้งหมด →</a></div>
+    <header className="topbar storefront-topbar">
+      <a className="brand" href="/" aria-label="INSURE ONE หน้าแรก"><span className="brand-mark">🛡</span><span>INSURE <b>ONE</b><small>ประกันครบ เลือกง่าย ใส่ใจทุกชีวิต</small></span></a>
+      <nav aria-label="เมนูหลัก"><a className="storefront-nav-active" href="/">⌂ หน้าแรก</a><a href="#products">▣ ผลิตภัณฑ์</a><a href="#promotions">♥ โปรโมชั่น</a><a href="/products">▤ เปรียบเทียบแผน</a><a href="#how">▣ วิธีใช้งาน</a><a href="/contact">☎ ติดต่อเรา</a></nav>
+      <div className="account-actions"><a className="login" href="/login">เข้าสู่ระบบ</a><a className="button button-small" href="/register">สมัครสมาชิก</a></div>
+    </header>
 
-      <section className="hero">
-        <div className="hero-copy">
-          <div className="eyebrow"><span className="dot" /> INSURANCE MADE SIMPLE</div>
-          <h1>ประกันที่ใช่<br /><em>เลือกง่ายในที่เดียว</em></h1>
-          <p>ค้นหาผลิตภัณฑ์ประกัน เปรียบเทียบข้อมูลความคุ้มครอง และส่งคำขอให้เจ้าหน้าที่ช่วยดูแลอย่างเป็นขั้นตอน</p>
-          <div className="hero-actions">
-            <a className="button" href="#products">เลือกประเภทประกัน <span>→</span></a>
-            <a className="text-link" href="#how">ดูวิธีใช้งาน</a>
-          </div>
-          <div className="trust-row">
-            <span>✓ ข้อมูลผลิตภัณฑ์ตรวจสอบได้</span>
-            <span>✓ มีเจ้าหน้าที่ให้คำปรึกษา</span>
-          </div>
-        </div>
-        <div className="hero-art" aria-label="ภาพประกอบการดูแลและความคุ้มครอง">
-          <div className="orbit orbit-one"></div><div className="orbit orbit-two"></div>
-          <div className="shield">✓</div>
-          <div className="float-card card-top"><span className="mini-icon">🛡️</span><div><b>ความคุ้มครอง</b><small>เลือกตามความต้องการ</small></div></div>
-          <div className="float-card card-bottom"><span className="mini-icon gold">✦</span><div><b>เปรียบเทียบง่าย</b><small>ตรวจสอบข้อมูลก่อนตัดสินใจ</small></div></div>
-          <div className="art-caption">YOUR PEACE OF MIND</div>
-        </div>
-      </section>
+    <HeroCarousel />
+    <div className="storefront-trust-rail" aria-label="จุดเด่นของบริการ"><div><span>🛡️</span><strong>เปรียบเทียบอย่างโปร่งใส</strong><small>ตรวจสอบเงื่อนไขก่อนตัดสินใจ</small></div><div><span>▦</span><strong>หลายหมวดประกัน</strong><small>ค้นหาแผนตามความต้องการ</small></div><div><span>💬</span><strong>ขอคำแนะนำได้</strong><small>ส่งคำขอผ่านระบบออนไลน์</small></div><div><span>📱</span><strong>ใช้งานได้ทุกอุปกรณ์</strong><small>คอมพิวเตอร์และมือถือ</small></div></div>
 
-      <section className="stats">
-        <div><b>หลายประเภท</b><span>ค้นหาประกันได้ตามความต้องการ</span></div>
-        <div><b>เข้าใจง่าย</b><span>ดูข้อมูลสำคัญก่อนตัดสินใจ</span></div>
-        <div><b>มีผู้ช่วยดูแล</b><span>ส่งคำขอให้เจ้าหน้าที่ติดต่อกลับ</span></div>
-      </section>
+    <section className="storefront-category-wrap" id="products" aria-labelledby="category-title">
+      <div className="storefront-category-heading"><span className="eyebrow">EXPLORE INSURANCE</span><h2 id="category-title">เลือกประกันที่ใช่สำหรับคุณ</h2><p>เริ่มต้นจากประเภทที่สนใจ</p></div>
+      <div className="storefront-category-strip">{categories.map(c => <a key={c.title} href={c.title === "ดูทั้งหมด" ? "/products" : `/products?category=${encodeURIComponent(c.title)}`} className="storefront-category-tile"><span className="storefront-category-emoji" aria-hidden="true">{c.icon}</span><strong>{c.title}</strong><small>{c.desc}</small></a>)}</div>
+    </section>
 
-      <section className="section" id="products">
-        <div className="section-heading">
-          <div><span className="eyebrow">FIND YOUR COVER</span><h2>คุณกำลังมองหาประกันแบบไหน?</h2></div>
-          <p>เลือกหมวดหมู่เพื่อเริ่มต้นค้นหาผลิตภัณฑ์ที่มีข้อมูลยืนยันแล้ว</p>
-        </div>
-        <div className="category-grid">
-          {categories.map((c) => (
-            <a className="category-card" href={`/products?category=${encodeURIComponent(c.title)}`} key={c.title}>
-              <span className="category-icon">{c.icon}</span>
-              <h3>{c.title}</h3><p>{c.desc}</p><span className="arrow">↗</span>
-            </a>
-          ))}
-        </div>
-      </section>
+    <section className="storefront-campaigns section" aria-label="ค้นหาความคุ้มครองตามไลฟ์สไตล์">
+      <div className="section-heading"><div><span className="eyebrow">HANDPICKED FOR YOU</span><h2>สิทธิประโยชน์และแผนที่คุณอาจสนใจ</h2></div><p>เลือกดูประเภทความคุ้มครองก่อนตรวจสอบข้อเสนอจริง</p></div>
+      <div className="storefront-campaign-grid">
+        <a className="storefront-campaign-card campaign-auto" href="/products?category=ประกันรถยนต์"><span className="campaign-label">แนะนำให้สำรวจ</span><h3>ประกันรถยนต์<br/>เลือกความคุ้มครองให้ตรงใจ</h3><p>เปรียบเทียบข้อมูลแผนและเงื่อนไข</p><strong>ดูแผนรถยนต์ →</strong></a>
+        <a className="storefront-campaign-card campaign-health" href="/products?category=ประกันสุขภาพ"><span className="campaign-label">ดูแลสุขภาพ</span><h3>สุขภาพที่ดี<br/>เริ่มจากการวางแผน</h3><p>ค้นหาตัวเลือกค่ารักษาพยาบาล</p><strong>ดูแผนสุขภาพ →</strong></a>
+        <a className="storefront-campaign-card campaign-travel" href="/products?category=ประกันเดินทาง"><span className="campaign-label">สำหรับนักเดินทาง</span><h3>พร้อมออกเดินทาง<br/>อย่างมั่นใจ</h3><p>สำรวจความคุ้มครองก่อนทริป</p><strong>ดูแผนเดินทาง →</strong></a>
+      </div>
+    </section>
+    <PlanFinder />
+    <FeaturedPromotions />
 
-      <section className="how-section" id="how">
-        <div className="section-heading centered">
-          <span className="eyebrow">HOW IT WORKS</span><h2>เริ่มต้นได้ใน 3 ขั้นตอน</h2>
-        </div>
-        <div className="steps">
-          <article><span>01</span><h3>เลือกประกัน</h3><p>เลือกประเภทและดูข้อมูลแผนที่สนใจ</p></article>
-          <article><span>02</span><h3>ส่งคำขอ</h3><p>แจ้งความต้องการให้เจ้าหน้าที่ตรวจสอบรายละเอียด</p></article>
-          <article><span>03</span><h3>ยืนยันและดำเนินการ</h3><p>ซื้อหรือชำระเงินได้เมื่อผลิตภัณฑ์และช่องทางได้รับการยืนยันว่าพร้อมใช้งาน</p></article>
-        </div>
-      </section>
+    <section className="storefront-feature-grid section" aria-label="บริการของเรา">
+      <div className="section-heading"><div><span className="eyebrow">WHY INSURE ONE</span><h2>เรื่องประกัน ให้เป็นเรื่องง่าย</h2></div><p>เริ่มค้นหาด้วยตัวเอง และให้เจ้าหน้าที่ช่วยตรวจสอบรายละเอียดก่อนตัดสินใจ</p></div>
+      <div className="storefront-feature-cards">
+        <article><span>🔎</span><h3>ค้นหาและเปรียบเทียบ</h3><p>ค้นหาแผนตามชื่อบริษัท ประเภทประกัน และความคุ้มครองที่สนใจ</p><a href="/products">ดูแผนประกัน →</a></article>
+        <article><span>💬</span><h3>ขอคำแนะนำ</h3><p>ส่งความต้องการและรับการติดต่อกลับจากผู้ดูแลระบบ</p><a href="/quote">ขอใบเสนอราคา →</a></article>
+        <article><span>📋</span><h3>ติดตามคำขอออนไลน์</h3><p>สมาชิกสามารถตรวจสอบสถานะคำขอและข้อเสนอที่ได้รับในระบบ</p><a href="/member">พื้นที่สมาชิก →</a></article>
+      </div>
+    </section>
 
-      <section className="contact-band" id="contact">
-        <div><span className="eyebrow">NEED HELP?</span><h2>ไม่แน่ใจว่าจะเลือกแผนไหน?</h2><p>ส่งคำขอให้เจ้าหน้าที่ติดต่อกลับเพื่ออธิบายข้อมูลและเงื่อนไขที่สำคัญ</p></div>
-        <a className="button button-light" href="/quote">ขอให้ติดต่อกลับ <span>→</span></a>
-      </section>
-
-      <footer>
-        <div className="footer-brand"><span className="brand-mark">I</span><span>INSURE ONE<small>ประกันครบ เลือกง่าย</small></span></div>
-        <p>ข้อมูลผลิตภัณฑ์ ราคา และความคุ้มครองต้องได้รับการตรวจสอบก่อนเผยแพร่</p>
-        <div className="footer-links"><a href="/privacy">นโยบายความเป็นส่วนตัว</a><a href="/terms">เงื่อนไขการใช้บริการ</a><a href="/contact">ติดต่อเรา</a></div>
-        <small>INSURE ONE เป็นชื่อโครงการตัวอย่าง ไม่ได้แสดงว่าเป็นบริษัทประกันหรือได้รับการรับรองจากบริษัทใด</small>
-      </footer>
-    </main>
-  );
+    <section className="how-section" id="how"><div className="section-heading centered"><span className="eyebrow">HOW IT WORKS</span><h2>เลือกประกันง่าย ๆ ใน 3 ขั้นตอน</h2></div><div className="steps"><article><span>01</span><h3>เลือกประเภท</h3><p>ค้นหาแผนและข้อมูลความคุ้มครองที่สนใจ</p></article><article><span>02</span><h3>ขอใบเสนอราคา</h3><p>ส่งข้อมูลที่จำเป็นเพื่อให้เจ้าหน้าที่ตรวจสอบ</p></article><article><span>03</span><h3>ยืนยันก่อนซื้อ</h3><p>ตรวจสอบเบี้ยจริง เงื่อนไข และช่องทางดำเนินการที่ได้รับอนุญาต</p></article></div></section>
+    <section className="contact-band"><div><span className="eyebrow">WE'RE HERE TO HELP</span><h2>ยังไม่แน่ใจว่าควรเลือกแผนไหน?</h2><p>บอกความต้องการของคุณ แล้วให้เจ้าหน้าที่ช่วยดูรายละเอียด</p></div><a className="button button-light" href="/quote">ขอคำปรึกษา →</a></section>
+    <footer><div className="footer-brand"><span className="brand-mark">◆</span><span>INSURE ONE<small>ประกันครบ เลือกง่าย ใส่ใจทุกชีวิต</small></span></div><p>ข้อมูลราคาและโปรโมชั่นต้องได้รับการยืนยันก่อนเผยแพร่ เว็บไซต์ไม่ใช่ผู้รับประกันภัยโดยตรง</p><div className="footer-links"><a href="/privacy">นโยบายความเป็นส่วนตัว</a><a href="/terms">เงื่อนไขการใช้บริการ</a><a href="/contact">ติดต่อเรา</a></div><small>ยังไม่มีการยืนยันความร่วมมือหรือสิทธิ์จำหน่ายกับทุกบริษัทประกัน</small></footer>
+  </main>;
 }
-
-

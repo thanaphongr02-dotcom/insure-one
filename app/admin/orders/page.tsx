@@ -41,9 +41,9 @@ const steps = [
 ];
 const allowedNext: Record<string, string[]> = {
   awaiting_payment_channel: ["awaiting_payment_confirmation", "cancelled"],
-  awaiting_payment_confirmation: ["payment_confirmed", "cancelled"],
+  awaiting_payment_confirmation: ["cancelled"], // Payment confirmation requires verified server integration.
   payment_confirmed: ["awaiting_policy"],
-  awaiting_policy: ["policy_issued"],
+  awaiting_policy: [], // Issuance requires verified insurer workflow.
   policy_issued: [],
   cancelled: [],
 };
@@ -140,6 +140,15 @@ export default function AdminOrdersPage() {
     if (busy || !authorized) return;
     const d = drafts[order.id];
     if (!d) return;
+    // UI safety gate only. Database privileges must also be hardened before launch.
+    if (order.status === "awaiting_payment_confirmation" && d.status === "payment_confirmed") {
+      setError("ยังไม่เปิดให้ยืนยันการชำระเงินผ่านหน้า Admin ต้องเชื่อมระบบตรวจสอบการชำระเงินฝั่งเซิร์ฟเวอร์ก่อน");
+      return;
+    }
+    if (order.status === "awaiting_policy" && d.status === "policy_issued") {
+      setError("ยังไม่เปิดให้ระบุว่าออกกรมธรรม์แล้วจากหน้า Admin ต้องตรวจสอบการออกกรมธรรม์กับบริษัทประกันผ่านขั้นตอนฝั่งเซิร์ฟเวอร์ก่อน");
+      return;
+    }
     if (d.status !== order.status && !(allowedNext[order.status] ?? []).includes(d.status)) {
       setError("ไม่สามารถข้ามขั้นตอนหรือย้อนสถานะได้ กรุณาเลือกสถานะถัดไปตามลำดับ");
       return;
@@ -253,6 +262,7 @@ export default function AdminOrdersPage() {
         <Link href="/admin" style={{ color: "#1764b3" }}>← กลับ Admin Dashboard</Link>
         <h1 style={{ marginBottom: 8 }}>จัดการคำสั่งซื้อและกรมธรรม์</h1>
         <p style={{ color: "#64748b", lineHeight: 1.7 }}>แสดงใบเสนอราคาที่ลูกค้าตอบรับแล้ว และติดตามขั้นตอนหลังการตอบรับ โดยไม่มีระบบรับชำระเงินในหน้านี้</p>
+        <p role="status" style={{ background: "#fff7ed", color: "#9a3412", padding: 14, borderRadius: 10 }}>ยังไม่เปิดการยืนยันการชำระเงินด้วยตนเอง ต้องตรวจสอบธุรกรรมผ่านระบบฝั่งเซิร์ฟเวอร์และผู้รับชำระที่ได้รับอนุญาตก่อนเปิดใช้งานจริง</p>
         {message && <p role="status" style={{ color: "#15803d", background: "#dcfce7", padding: 12, borderRadius: 8 }}>{message}</p>}
         {error && <p role="alert" style={{ color: "#b91c1c", background: "#fee2e2", padding: 12, borderRadius: 8 }}>{error}</p>}
         {offers.length === 0 && <section style={{ background: "white", padding: 24, borderRadius: 14 }}>ยังไม่มีใบเสนอราคาที่ลูกค้าตอบรับ</section>}
