@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import "./products.css";
+import { officialInsuranceProducts } from "@/lib/insurance/official-public-catalog";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/Lib/supabase";
 
@@ -131,6 +132,15 @@ function ProductsContent() {
             })}
           </div>
           <p className="insurance-category-note">ราคาและโปรโมชั่นจะแสดงเฉพาะแผนที่มีแหล่งข้อมูลตรวจสอบได้และยังไม่หมดอายุ ไม่มีการสมมติราคาเบี้ยหรือส่วนลด</p>
+        </section>
+        <section className="official-catalog" aria-label="ผลิตภัณฑ์จากเว็บไซต์บริษัทประกัน">
+          <div className="insurance-category-heading"><h2>รู้จักผลิตภัณฑ์จากเว็บไซต์บริษัทประกัน</h2><p>ข้อมูลเบื้องต้นอ้างอิงจากหน้าเว็บไซต์ทางการ ไม่ใช่การดึงราคาแบบเรียลไทม์ และไม่ใช่ข้อเสนอที่ได้รับอนุมัติให้จำหน่ายบน INSURE ONE</p></div>
+          <div className="official-catalog-grid">{officialInsuranceProducts.filter(p => (category === "all" || p.category === category) && [p.name,p.company,p.category].some(s => s.toLocaleLowerCase("th").includes(search.trim().toLocaleLowerCase("th")))).map(p => <article className="official-product-card" key={p.company+p.name}>
+            <div className="official-product-company">{p.company}</div><h3>{p.name}</h3><span className="official-product-category">{p.category}</span><p>{p.summary}</p>
+            {p.note && <p className="official-product-warning">{p.note}</p>}
+            <div className="official-product-actions"><a href={p.source} target="_blank" rel="noopener noreferrer">อ่านข้อมูลจากบริษัท ↗</a><Link href={`/quote?insurance_type=${encodeURIComponent(p.category)}&plan=${encodeURIComponent(p.name)}&company=${encodeURIComponent(p.company)}`}>ขอให้ตรวจสอบราคา</Link></div>
+          </article>)}</div>
+          <p className="insurance-category-note">ราคาประกันขึ้นกับอายุ สุขภาพ รถยนต์ พื้นที่ ความคุ้มครอง และการรับประกันภัย โปรดตรวจสอบรายละเอียดล่าสุดจากบริษัทก่อนตัดสินใจ</p>
         </section>
         <section className="products-filters" aria-label="ค้นหาและกรองแผนประกัน" style={{ display: "flex", gap: 12, flexWrap: "wrap", background: "white", borderRadius: 16, padding: 18, marginBottom: 24, border: "1px solid #dce6f1" }}>
           <label style={{ flex: "2 1 240px", fontSize: 13, fontWeight: 600 }}>ค้นหาแผนประกัน
