@@ -7,7 +7,7 @@ language plpgsql
 set search_path = ''
 as $$
 begin
-  if new.status = 'sent' and (tg_op = 'INSERT' or old.status is distinct from 'sent') then
+  if new.status = 'sent' then
     if not exists (
       select 1 from public.insurer_partnerships p
       where (p.verified_legal_name = new.company_name or
@@ -30,5 +30,5 @@ $$;
 revoke all on function public.guard_unverified_insurer_offer() from public;
 drop trigger if exists guard_unverified_insurer_offer on public.insurance_offers;
 create trigger guard_unverified_insurer_offer
-before insert or update of status on public.insurance_offers
+before insert or update on public.insurance_offers
 for each row execute function public.guard_unverified_insurer_offer();
