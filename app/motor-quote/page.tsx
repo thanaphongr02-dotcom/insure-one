@@ -35,6 +35,7 @@ export default function MotorQuoteWizard() {
   const models = useMemo(() => carBrands[brand] ?? [], [brand]);
   const complete = Boolean(brand && model && year && variant.trim() && mileage && usage && claims);
   const summary = [`ยี่ห้อ: ${brand}`, `รุ่น: ${model}`, `ปี: ${year}`, `รุ่นย่อย/เครื่องยนต์: ${variant}`, `เลขไมล์: ${mileage}`, `การใช้งาน: ${usage}`, `เคลม 12 เดือน: ${claims} ครั้ง`, `แผนที่สนใจ: ${coverage}`].join("\n");
+  const quoteUrl = "/quote?" + new URLSearchParams({ insurance_type: "ประกันรถยนต์", motor_details: summary }).toString();
   return (
     <main style={{ maxWidth: 760, margin: "0 auto", padding: "36px 18px 80px", color: "#164d91", lineHeight: 1.6 }}>
       <Link href="/">← กลับหน้าหลัก</Link>
@@ -89,8 +90,8 @@ export default function MotorQuoteWizard() {
         <p>{summary}</p>
         <p><strong>ยังไม่มีราคาเบี้ยประกันที่ยืนยันจากบริษัท</strong> ราคาจริงและความคุ้มครองจะขึ้นอยู่กับการพิจารณารับประกันของบริษัทแต่ละแห่ง</p>
         <button type="button" onClick={() => navigator.clipboard?.writeText(summary)} style={{ ...inputStyle, background: "#e8f2ff", cursor: "pointer" }}>คัดลอกข้อมูลรถ</button>
-        <p><Link href="/quote">ไปหน้าส่งคำขอใบเสนอราคา →</Link></p>
-        <small>โปรดนำข้อมูลสรุปนี้ไปกรอกในช่องรายละเอียดคำขอ ระบบยังไม่ได้ส่งหรือบันทึกข้อมูลรถโดยอัตโนมัติ</small>
+        <p><Link href={quoteUrl}>ส่งข้อมูลรถพร้อมคำขอใบเสนอราคา →</Link></p>
+        <small>ระบบจะนำข้อมูลรถไปใส่ในแบบฟอร์มคำขอให้โดยอัตโนมัติ แต่จะบันทึกเมื่อคุณกดยืนยันส่งคำขอเท่านั้น</small>
       </section>}
     </main>
   );
