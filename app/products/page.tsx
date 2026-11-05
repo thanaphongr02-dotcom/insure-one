@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
+import "./products.css";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/Lib/supabase";
 
@@ -94,17 +95,17 @@ function ProductsContent() {
   if (loading) return <main style={{ padding: 40 }}>กำลังโหลดแผนประกัน...</main>;
 
   return (
-    <main style={{ minHeight: "100vh", background: "#f3f7fc", padding: "32px 18px", color: "#102b50" }}>
+    <main className="products-page" style={{ minHeight: "100vh", background: "#f3f7fc", padding: "32px 18px", color: "#102b50" }}>
       <div style={{ maxWidth: 1150, margin: "0 auto" }}>
         <Link href="/" style={{ color: "#1764b3", textDecoration: "none", fontWeight: 600 }}>← กลับหน้าหลัก</Link>
-        <header style={{ margin: "28px 0" }}>
+        <header className="products-hero" style={{ margin: "28px 0" }}>
           <h1 style={{ fontSize: 32, marginBottom: 8 }}>INSURE ONE</h1>
           <h2 style={{ fontSize: 24, margin: 0 }}>แผนประกันภัยและโปรโมชั่น</h2>
           <p style={{ color: "#64748b", lineHeight: 1.8 }}>
             เปรียบเทียบข้อมูลเบื้องต้นและส่งคำขอใบเสนอราคาเพื่อรับข้อเสนอที่เหมาะกับคุณ
           </p>
         </header>
-        <section aria-label="ค้นหาและกรองแผนประกัน" style={{ display: "flex", gap: 12, flexWrap: "wrap", background: "white", borderRadius: 16, padding: 18, marginBottom: 24, border: "1px solid #dce6f1" }}>
+        <section className="products-filters" aria-label="ค้นหาและกรองแผนประกัน" style={{ display: "flex", gap: 12, flexWrap: "wrap", background: "white", borderRadius: 16, padding: 18, marginBottom: 24, border: "1px solid #dce6f1" }}>
           <label style={{ flex: "2 1 240px", fontSize: 13, fontWeight: 600 }}>ค้นหาแผนประกัน
             <input type="search" value={search} onChange={e => setSearch(e.target.value)} placeholder="ชื่อแผน บริษัท หรือความคุ้มครอง" style={{ display: "block", width: "100%", padding: 12, borderRadius: 10, border: "1px solid #cbd5e1", marginTop: 6 }} />
           </label>
@@ -186,7 +187,7 @@ function ProductsContent() {
             const finalPrice = basePrice === null ? null : Math.max(0, basePrice - discount);
             const params = new URLSearchParams({ company: company?.name ?? "", plan: plan.plan_name });
             return (
-              <article key={plan.id} style={cardStyle}>
+              <article className="products-card" key={plan.id} style={cardStyle}>
                 <div style={{ height: 90, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16, background: "#f8fafc", borderRadius: 12 }}>
                   {company?.logo_url ? (
                     <img src={company.logo_url} alt={`โลโก้ ${company.name}`} style={{ maxWidth: "85%", maxHeight: 70, objectFit: "contain" }} />
